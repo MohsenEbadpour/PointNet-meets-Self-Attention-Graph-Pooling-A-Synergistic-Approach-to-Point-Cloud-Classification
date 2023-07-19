@@ -31,7 +31,7 @@ Furthermore, we extend an invitation to fellow researchers to join efforts in pr
 
 
 ## Acknowledgement
-The successful completion of this research and investigation is acknowledged as Mohsen Ebadpour's final project in the 3D Vision course during his Master of Science degree at Amirkabir University of Technology. Gratitude is extended to Dr. Jvanmardi, the course lecturer, for providing invaluable guidance and mentorship, which played a crucial role in shaping the direction and outcomes of this academic journey. His support and expertise were highly appreciated throughout the study, serving as a guiding force in the research process.
+The successful completion of this research and investigation is acknowledged as Mohsen Ebadpour's final project in the 3D Vision course during his Master of Science degree at Amirkabir University of Technology. Gratitude is extended to Dr. Javanmardi, the course lecturer, for providing invaluable guidance and mentorship, which played a crucial role in shaping the direction and outcomes of this academic journey. His support and expertise were highly appreciated throughout the study, serving as a guiding force in the research process.
 
 ## License
 This project is licensed under the GPL-3.0 License.
