@@ -26,3 +26,15 @@ In conclusion, this research successfully explored and enhanced point cloud clas
 3)	Fine-tuning of Fusion Approach Components: The proposed fusion approaches, FeatureConcat and PointNetBasedGraphPooling, utilize MLP and 1D convolution layers, dropout, and batch normalization. Fine-tuning these components and hyperparameters can further enhance the network's performance and efficiency. Optimizing these details will lead to improved feature extraction and pooling, contributing to better classification results.
 
 4)	Ablation Study of Used Features: An ablation study, focusing on the impact of the individual features used in the fusion approaches, would shed light on their individual importance and contribution to the classification performance. Understanding the significance of each feature can help in designing more effective and efficient feature representations for point cloud classification tasks.
+
+Furthermore, we extend an invitation to fellow researchers to join efforts in preparing and submitting this research to a reputable academic conference or journal. By collaborating and sharing insights, we can collectively advance the field of point cloud classification and foster meaningful discussions within the scientific community.
+
+
+## Acknowledgement
+The successful completion of this research and investigation is acknowledged as Mohsen Ebadpour's final project in the 3D Vision course during his Master of Science degree at Amirkabir University of Technology. Gratitude is extended to Dr. Jvanmardi, the course lecturer, for providing invaluable guidance and mentorship, which played a crucial role in shaping the direction and outcomes of this academic journey. His support and expertise were highly appreciated throughout the study, serving as a guiding force in the research process.
+
+## License
+This project is licensed under the GPL-3.0 License.
+
+## Feedback
+If you have any feedback or suggestions for improving this research, please feel free to open an issue in the repository as well as send an email to Mohsen Ebadpour (<m.ebadpour@aut.ac.ir> , <mohsenebadpour@outlook.com>).
