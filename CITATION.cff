@@ -1,0 +1,14 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+authors:
+- family-names: "Ebadpour"
+  given-names: "Mohsen"
+  orcid: "https://orcid.org/0000-0003-2745-7329"
+- family-names: "Atyabi"
+  given-names: "Mohadeseh"
+- family-names: "Choupan"
+  given-names: "Mohammad"
+title: "PointNet-meets-Self-Attention-Graph-Pooling-A-Synergistic-Approach-to-Point-Cloud-Classification"
+version: 1.0.0
+date-released: 2023-08-26
+url: "https://github.com/Mohadeseh-Atyabi/PointNet-meets-Self-Attention-Graph-Pooling-A-Synergistic-Approach-to-Point-Cloud-Classification"
