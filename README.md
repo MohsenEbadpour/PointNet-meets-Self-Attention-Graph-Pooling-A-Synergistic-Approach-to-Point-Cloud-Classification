@@ -47,7 +47,7 @@ This project is licensed under the GPL-3.0 License.
 
 
 ## Acknowledgement
-The original concept for this research was realized as the final project of the three-dimensional vision course, presented by Dr. Javanmardi, in the master's degree at Amirkabir University of Technology. Given the positive results of the initial implementatioon, a group of students came together to carry out the subsequent work and submit this research to a reputable academic conference or journal. Research activities have been carried out in Dr. Javanmardi's laboratory and the initial version will be released soon. This directory presents the most recent applications and discoveries.
+The original concept for this research was realized as the final project of the three-dimensional vision course presented by Dr. Javanmardi in the master's degree at Amirkabir University of Technology. Given the positive results of the initial implementation, a group of students came together to carry out the subsequent work and submit this research to a reputable academic conference or journal. Research activities have been carried out in Dr. Javanmardi's laboratory, and the initial version will be released soon. This directory presents the most recent applications and discoveries.
 
 
 ## People
