@@ -13,4 +13,4 @@ version: 1.0.0
 date-released: 2023-08-26
 url: "https://github.com/Mohadeseh-Atyabi/PointNet-meets-Self-Attention-Graph-Pooling-A-Synergistic-Approach-to-Point-Cloud-Classification"
 preferred-citation:
-  type: unpublished
+  type: report
