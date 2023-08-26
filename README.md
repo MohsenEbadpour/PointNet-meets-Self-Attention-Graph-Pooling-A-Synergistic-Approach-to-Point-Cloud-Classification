@@ -31,7 +31,7 @@ Furthermore, we extend an invitation to fellow researchers to join efforts in pr
 
 
 ## Acknowledgement
-The successful completion of this research and investigation is acknowledged as Mohsen Ebadpour's final project in the 3D Vision course during his Master of Science degree at Amirkabir University of Technology. Gratitude is extended to Dr. Javanmardi, the course lecturer, for providing invaluable guidance and mentorship, which played a crucial role in shaping the direction and outcomes of this academic journey. His support and expertise were highly appreciated throughout the study, serving as a guiding force in the research process.
+The successful completion of this research is the last project of [Mohsen Ebadpour](https://github.com/MohsenEbadpour) in the three-dimensional perspective course at the master's degree at Amirkabir University of Technology. The execution and implementation of future work on this research are being done by [Mohadesdeh Atyabi](https://github.com/Mohadeseh-Atyabi) and [Mohammad Chopan](https://github.com/mohamadch91), undergraduate students of this university. We are grateful to Dr. Javanmardi, the course lecturer, for providing valuable guidance and advice that played an essential role in shaping the path and results of this academic journey. His support and expertise throughout the study were greatly appreciated, and served as a guiding force in the research process.
 
 ## License
 This project is licensed under the GPL-3.0 License.
