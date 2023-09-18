@@ -34,7 +34,7 @@ from torch_geometric.nn.pool.topk_pool import topk,filter_adj
 
 # Create class for training and testing all models
 class MainModel(torch.nn):
-    def __init__(self,model,dataset_path,data_loader):
+    def __init__(self,model,dataset_path,data_loader,loss_function):
         super().__init__()
         self.dataset_path=dataset_path
         self.model=model
@@ -43,6 +43,18 @@ class MainModel(torch.nn):
             "train":None,
             "test":None
         }
+        self.epoch=0
+        self.train_losses=[]
+        self.test_losses=[]
+        self.loss_function=loss_function
+        self.train_accuracy=[]
+        self.test_accuracy=[]
+        self.train_f1_score=[]
+        self.test_f1_score=[]
+        self.train_precision=[]
+        self.test_precision=[]
+        
+        
     def read_dataset(self,reader,valid,force_to_cal=False):
         train=reader(self.dataset_path,valid=True,train=True,force_to_cal=force_to_cal)
         test=reader(self.dataset_path,valid=True,train=False,force_to_cal=force_to_cal)
@@ -63,8 +75,7 @@ class MainModel(torch.nn):
     def train(self):
         pass
     
-    def test(self):
-        pass
+
     
     def save_weights(self):
         pass
@@ -72,11 +83,38 @@ class MainModel(torch.nn):
     def load_weights(self):
         pass
     
-    def calculate_accuracy(self):
-        pass
+    def calculate_accuracy(self,Train=True):
+        if Train:
+            loader=self.data_set["train"]
+        else:
+            loader=self.data_set["test"]
+        with torch.no_grad():
+            self.model.eval()
+            correct = 0.
+            model = model.to("cuda")
+            for data in loader:
+                outputs, m3x3, m64x64 = model(data)
+                labels = data['category'].to("cuda")
+                pred = outputs.max(dim=1)[1]
+                correct += pred.eq(labels).sum().item()
+        return correct / len(loader.dataset)
     
-    def calculate_loss(self):
-        pass
+    def calculate_loss(self,Train=True ):
+        if Train:
+            loader=self.data_set["train"]
+        else:
+            loader=self.data_set["test"]
+        with torch.no_grad():
+            self.model.eval()
+            loss = 0.
+            model = model.to("cuda")
+            for data in loader:
+                outputs, m3x3, m64x64 = model(data)
+                labels = data['category'].to("cuda")
+                loss += self.loss_function(outputs, labels).item()
+
+        return loss / len(loader.dataset)
+        
     
     def calculate_confusion_matrix(self):
         pass
