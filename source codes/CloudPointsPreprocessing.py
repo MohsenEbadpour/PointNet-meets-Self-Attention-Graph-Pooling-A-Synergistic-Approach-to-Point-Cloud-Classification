@@ -1,56 +1,44 @@
 import torch
-from torch import nn
-from torch import optim
-from torch.nn import functional as F
-from torch.utils.data import Dataset as TDataset, DataLoader as TDataloader
-from torch.utils.data import random_split
-
-
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
-
+import networkx as nx
 from pathlib import Path
 import os
 import plotly.graph_objects as go
+import numpy as np
 import math
 import random
-import threading
-from tqdm import tqdm
-import pickle
-
-import torch_geometric
-from torch_geometric.data import Dataset as TGDataset, Data as TGData
-from torch_geometric.loader import DataLoader as TGDataLoader
-from torchvision import transforms, utils
-from torch_geometric.utils.convert import from_networkx
-from torch_geometric import transforms as T
+import os
+import torch
+import scipy.spatial.distance
 from torch_geometric.nn import GCNConv,Linear,GATConv,GATv2Conv,SAGEConv, GATConv,ChebConv
-from torch_geometric.nn import GraphConv, TopKPooling
-from torch_geometric.nn import global_mean_pool as gap, global_max_pool as gmp
-from torch_geometric.nn.pool.topk_pool import topk,filter_adj
 LAYERS = {
     GCNConv:"GCNConv",
     GATConv: "GATConv",
     SAGEConv:"SAGEConv",
     ChebConv:"ChebConv"
 }
+from torch.utils.data import Dataset, DataLoader
+from torchvision import transforms, utils
+import threading
+from tqdm import tqdm
 
-
+import plotly.graph_objects as go
 from sklearn.neighbors import radius_neighbors_graph, kneighbors_graph
-from sklearn.metrics import confusion_matrix,accuracy_score
-import scipy.spatial.distance
-import networkx as nx
+import pickle
 
-from FeatureConcatModel import * 
+from CloudPointsPreprocessing import *
+from FeatureConcatModel import *
 from GraphPreprocessing import *
 from PointNet import *
 from PointNetBasedGraphPoolingModel import *
-from ReportVisualization import * 
-from SelfAttentionGraphPooling import * 
+from ReportVisualization import *
+from SelfAttentionGraphPooling import *
 
 path_global = Path("ModelNet10")
+
 
 def load_data(path):
     folders = [dir for dir in sorted(os.listdir(path)) if os.path.isdir(path/dir)]
@@ -65,7 +53,10 @@ def load_data(path):
         faces = [[int(s) for s in file.readline().strip().split(' ')][1:] for i_face in range(n_faces)]
     return verts, faces,classes
 
+
 verts, faces, classes = load_data(path_global)
+i,j,k = np.array(faces).T
+x,y,z = np.array(verts).T
 
 
 class PointSampler(object):
@@ -85,7 +76,6 @@ class PointSampler(object):
         f = lambda i: s * pt1[i] + (t-s)*pt2[i] + (1-t)*pt3[i]
         return (f(0), f(1), f(2))
 
-
     def __call__(self, mesh):
         verts, faces = mesh
         verts = np.array(verts)
@@ -99,12 +89,14 @@ class PointSampler(object):
             sampled_points[i] = (self.sample_point(verts[sampled_faces[i][0]], verts[sampled_faces[i][1]],verts[sampled_faces[i][2]]))
         return sampled_points
 
+
 class Normalize(object):
     def __call__(self, pointcloud):
         assert len(pointcloud.shape)==2
         norm_pointcloud = pointcloud - np.mean(pointcloud, axis=0)
         norm_pointcloud /= np.max(np.linalg.norm(norm_pointcloud, axis=1))
         return  norm_pointcloud
+
 
 class RandRotation_z(object):
     def __call__(self, pointcloud):
@@ -116,12 +108,14 @@ class RandRotation_z(object):
         rot_pointcloud = rot_matrix.dot(pointcloud.T).T
         return  rot_pointcloud
 
+
 class RandomNoise(object):
     def __call__(self, pointcloud):
         assert len(pointcloud.shape)==2
         noise = np.random.normal(0, 0.02, (pointcloud.shape))
         noisy_pointcloud = pointcloud + noise
         return  noisy_pointcloud
+
 
 class ToTensor(object):
     def __call__(self, pointcloud):
@@ -133,7 +127,72 @@ def DefaultTransforms():
     return transforms.Compose([ PointSampler(1024), Normalize(),ToTensor()])
 
 
-class PointCloudData(TDataset):
+def get_graph_features(point_cloud,N=6):
+    connection_matrix = kneighbors_graph(point_cloud,N,mode='distance').toarray()
+    graph = nx.DiGraph()
+    X,Y,Z = {},{},{}
+    for node in range(connection_matrix.shape[0]):
+        for neighbor in range(connection_matrix.shape[1]):
+            if neighbor == node:
+                graph.add_edge(node,neighbor,weight=0)
+                continue
+            if connection_matrix[node][neighbor] == 0 :
+                continue
+            graph.add_edge(neighbor,node)
+            graph[neighbor][node]["weight"] = connection_matrix[node][neighbor]
+        X[node] = np.float64(point_cloud[node][0])
+        Y[node] = np.float64(point_cloud[node][1])
+        Z[node] = np.float64(point_cloud[node][2])
+
+    features = [X,Y,Z]
+    features_name = ["X","Y","Z"]
+
+    betweenness_centrality = nx.betweenness_centrality(graph,weight="weight")
+    features.append(betweenness_centrality)
+    features_name.append("betweenness_centrality")
+
+    katz_centrality = nx.katz_centrality(graph,weight="weight")
+    features.append(katz_centrality)
+    features_name.append("katz_centrality")
+
+    closeness_centrality = nx.closeness_centrality(graph,distance="weight",)
+    features.append(closeness_centrality)
+    features_name.append("closeness_centrality")
+
+    eigenvector_centrality = nx.eigenvector_centrality(graph,weight="weight",max_iter=100,tol=1e-3)
+    features.append(eigenvector_centrality)
+    features_name.append("eigenvector_centrality")
+
+    harmonic_centrality = nx.harmonic_centrality(graph,distance="weight",)
+    features.append(harmonic_centrality)
+    features_name.append("harmonic_centrality")
+
+    load_centrality = nx.load_centrality(graph,weight="weight")
+    features.append(load_centrality)
+    features_name.append("load_centrality")
+
+    pagerank = nx.pagerank(graph,weight='weight')
+    features.append(pagerank)
+    features_name.append("pagerank")
+
+    for idx in range(len(features)):
+        nx.set_node_attributes(graph,features[idx],features_name[idx])
+
+    nodes = nx.nodes(graph)
+    features = []
+    for node_indx in range(len(nodes)):
+        features.append(np.array(list(nodes[node_indx].values())))
+    features = np.array(features)
+
+    features[:,3:] = features[:,3:] - np.mean(features[:,3:], axis=0)
+    features[:,3:] /= np.max(np.linalg.norm(features[:,3:], axis=1))
+
+    edge_list = np.array(nx.edges(graph))
+
+    return torch.from_numpy(features),torch.from_numpy(edge_list), graph
+
+
+class PointCloudData(Dataset):
     def __init__(self, root_dir, valid=False, folder="train", transform=DefaultTransforms(),force_to_cal = False):
         self.root_dir = root_dir
         folders = [dir for dir in sorted(os.listdir(root_dir)) if os.path.isdir(root_dir/dir)]
@@ -172,58 +231,60 @@ class PointCloudData(TDataset):
         pcd_path = self.files[idx]['pcd_path']
         category = self.files[idx]['category']
         name = str(pcd_path).split("/")[-1].split(".")[0]
-        
+
         pointcloud_path = str(pcd_path).replace(name+".off",name+"_pointcloud.npz")
         graph_feature_path = str(pcd_path).replace(name+".off",name+"_graph_features.npz")
         graph_edge_list_path = str(pcd_path).replace(name+".off",name+"_graph_edge_list.npz")
         graph_path = str(pcd_path).replace(name+".off",name+"_graph.pickle")
-        torch_graph_path = str(pcd_path).replace(name+".off",name+"_torch_graph.pickle")
-        
+        torch_graph_path = str(pcd_path).replace(name + ".off", name + "_torch_graph.pickle")
+
         if not (os.path.exists(pointcloud_path) and os.path.exists(graph_feature_path)) or self.force_to_cal:
             with open(pcd_path, 'r') as f:
                 pointcloud = self.__preproc__(f)
                 graph_features,edge_list,graph = get_graph_features(pointcloud)
-            
+
                 pointcloud_np = pointcloud.numpy()
                 graph_features_np = graph_features.numpy()
                 edge_list_np = edge_list.numpy()
-            
+
                 np.savez_compressed(pointcloud_path, pointcloud_np)
                 np.savez_compressed(graph_feature_path, graph_features_np)
                 np.savez_compressed(graph_edge_list_path, edge_list_np)
-                
+
                 with open(graph_path, 'wb') as handle:
                     pickle.dump(graph, handle)
-              
+
         else:
                 pointcloud = torch.from_numpy(np.load(pointcloud_path)["arr_0"])
                 graph_features = torch.from_numpy(np.load(graph_feature_path)["arr_0"])
                 edge_list = torch.from_numpy(np.load(graph_edge_list_path)["arr_0"])
-                
+
                 with open(graph_path, 'rb') as handle:
                     graph = pickle.load(handle)
-        
-        return {'pointcloud': pointcloud,"edge_list":edge_list, 'category': self.classes[category],
-                'graph_features': graph_features}
-                           
+
         return {'pointcloud': pointcloud,"edge_list":edge_list,"graph":graph, 'category': self.classes[category],
-                'graph_features': graph_features,"torch_graph_path":torch_graph_path}
-    
+                'graph_features': graph_features}
+
+        # return {'pointcloud': pointcloud, "edge_list": edge_list, "graph": graph, 'category': self.classes[category],
+        #         'graph_features': graph_features, "torch_graph_path": torch_graph_path}
+
+
 def prepare_dataset(num,_cut,dataset):
     for i in range(len(dataset)):
         if i%num==_cut:
             sample = dataset[i]
             print("Done! ->",i)
 
+
 def handle_threads(num,dataset):
     threads = []
     for idx in tqdm(range(num)):
         thread = threading.Thread(target=prepare_dataset, args=(num,idx,dataset,))
         threads.append(thread)
-    
+
     for thread in tqdm(threads):
         thread.start()
-        
+
     for thread in threads:
         thread.join()
 
@@ -232,4 +293,6 @@ def handle_threads(num,dataset):
 #train_dataset = PointCloudData(path_global,force_to_cal=True)
 #valid_dataset = PointCloudData(path_global, valid=True, folder='test',force_to_cal=True)
 
+#handle_threads(20,train_dataset)
 #handle_threads(20,valid_dataset)
+
