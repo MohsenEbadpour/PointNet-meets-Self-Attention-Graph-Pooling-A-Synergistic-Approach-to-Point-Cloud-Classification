@@ -41,13 +41,16 @@ from sklearn.metrics import confusion_matrix,accuracy_score
 import scipy.spatial.distance
 import networkx as nx
 
-from CloudPointsPreprocessing import *
-from FeatureConcatModel import *
-from GraphPreprocessing import *
-from PointNet import *
-from PointNetBasedGraphPoolingModel import *
-from ReportVisualization import *
-from SelfAttentionGraphPooling import *
+from pre_process.CloudPointsPreprocessing import *
+from pre_process.GraphPreprocessing import *
+
+from base_models.FeatureConcatModel import *
+from base_models.PointNet import *
+from base_models.PointNetBasedGraphPoolingModel import *
+from base_models.SelfAttentionGraphPooling import *
+
+from visualization.ReportVisualization import *
+
 
 path_global = Path("ModelNet10")
 dataset_pointcloud_test = PointCloudData(path_global, valid=True, folder='test',force_to_cal=False)

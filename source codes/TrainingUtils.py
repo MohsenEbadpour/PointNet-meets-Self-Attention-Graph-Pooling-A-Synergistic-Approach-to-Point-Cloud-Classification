@@ -43,7 +43,7 @@ from sklearn.metrics import confusion_matrix,accuracy_score
 import scipy.spatial.distance
 import networkx as nx
 
-from PointNet import *
+from base_models.PointNet import *
 
 
 def TestPerfomanceCustom(model,loader):

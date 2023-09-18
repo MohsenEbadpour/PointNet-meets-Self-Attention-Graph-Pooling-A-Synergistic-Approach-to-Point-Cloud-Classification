@@ -1,13 +1,18 @@
 from torch.utils.data import Dataset as TDataset, DataLoader as TDataloader
 from pathlib import Path
 
-from CloudPointsPreprocessing import *
-from FeatureConcatModel import *
-from GraphPreprocessing import *
-from PointNet import *
-from PointNetBasedGraphPoolingModel import *
-from ReportVisualization import *
-from SelfAttentionGraphPooling import *
+from pre_process.CloudPointsPreprocessing import *
+from pre_process.GraphPreprocessing import *
+
+
+from base_models.FeatureConcatModel import *
+from base_models.PointNet import *
+from base_models.PointNetBasedGraphPoolingModel import *
+from base_models.SelfAttentionGraphPooling import *
+
+from visualization.ReportVisualization import *
+
+
 from TrainingUtils import *
 
 path_global = Path("ModelNet10")

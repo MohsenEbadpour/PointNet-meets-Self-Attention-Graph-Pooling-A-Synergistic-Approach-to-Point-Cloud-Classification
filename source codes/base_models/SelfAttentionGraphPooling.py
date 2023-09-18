@@ -43,12 +43,6 @@ from sklearn.metrics import confusion_matrix,accuracy_score
 import scipy.spatial.distance
 import networkx as nx
 
-from CloudPointsPreprocessing import * 
-from FeatureConcatModel import * 
-from GraphPreprocessing import *
-from PointNet import *
-from PointNetBasedGraphPoolingModel import *
-from ReportVisualization import * 
 
 class SAGPool(torch.nn.Module):
     def __init__(self,in_channels,ratio=0.2,non_linearity=torch.tanh,**karg):

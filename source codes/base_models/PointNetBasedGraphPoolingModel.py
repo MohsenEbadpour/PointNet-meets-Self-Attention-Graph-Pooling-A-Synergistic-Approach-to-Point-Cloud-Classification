@@ -43,11 +43,7 @@ from sklearn.metrics import confusion_matrix,accuracy_score
 import scipy.spatial.distance
 import networkx as nx
 
-from CloudPointsPreprocessing import * 
-from FeatureConcatModel import * 
-from GraphPreprocessing import *
 from PointNet import *
-from ReportVisualization import * 
 from SelfAttentionGraphPooling import * 
 
 

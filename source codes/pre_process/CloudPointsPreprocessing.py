@@ -29,13 +29,7 @@ import plotly.graph_objects as go
 from sklearn.neighbors import radius_neighbors_graph, kneighbors_graph
 import pickle
 
-from CloudPointsPreprocessing import *
-from FeatureConcatModel import *
-from GraphPreprocessing import *
-from PointNet import *
-from PointNetBasedGraphPoolingModel import *
-from ReportVisualization import *
-from SelfAttentionGraphPooling import *
+
 
 path_global = Path("ModelNet10")
 

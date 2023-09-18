@@ -43,12 +43,6 @@ from sklearn.metrics import confusion_matrix,accuracy_score
 import scipy.spatial.distance
 import networkx as nx
 
-from CloudPointsPreprocessing import * 
-from FeatureConcatModel import * 
-from GraphPreprocessing import *
-from PointNet import *
-from PointNetBasedGraphPoolingModel import *
-from SelfAttentionGraphPooling import * 
 
 def visualize_rotate(data):
     x_eye, y_eye, z_eye = 1.25, 1.25, 0.8
