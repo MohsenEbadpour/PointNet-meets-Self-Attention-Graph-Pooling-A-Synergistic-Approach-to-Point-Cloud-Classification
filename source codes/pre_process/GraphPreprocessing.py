@@ -43,12 +43,6 @@ from sklearn.metrics import confusion_matrix,accuracy_score
 import scipy.spatial.distance
 import networkx as nx
 
-from CloudPointsPreprocessing import * 
-from FeatureConcatModel import * 
-from PointNet import *
-from PointNetBasedGraphPoolingModel import *
-from ReportVisualization import * 
-from SelfAttentionGraphPooling import * 
 
 class PointCloudGraph(TGDataset):
     def __init__(self, point_cloud_dataset ,root="./", transform=None, pre_transform=None, pre_filter=None):
@@ -152,3 +146,7 @@ def GetSets(dataset,train=0.99,valid=0.01):
     validation_ratio = int(len(dataset)*valid)
     training_set,validation_set,test_set = random_split(dataset,[train_ratio , validation_ratio,len(dataset) - (train_ratio + validation_ratio)])
     return training_set,validation_set,test_set
+
+
+
+
