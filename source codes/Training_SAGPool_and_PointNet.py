@@ -21,7 +21,7 @@ from torch_geometric.nn import GCNConv,Linear,GATConv,GATv2Conv,SAGEConv, GATCon
 from torch_geometric.nn import GraphConv, TopKPooling
 from torch_geometric.nn import global_mean_pool as gap, global_max_pool as gmp
 from pre_process.CloudPointsPreprocessing import *
-from pre_process.GraphPreprocessing import *
+from pre_process.PointCloudGraphPreprocessing import *
 
 from base_models.FeatureConcatModel import *
 from base_models.PointNet import *

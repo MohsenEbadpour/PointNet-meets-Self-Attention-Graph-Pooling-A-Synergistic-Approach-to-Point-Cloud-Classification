@@ -2,7 +2,7 @@ from torch.utils.data import Dataset as TDataset, DataLoader as TDataloader
 from pathlib import Path
 
 from pre_process.CloudPointsPreprocessing import *
-from pre_process.GraphPreprocessing import *
+from pre_process.PointCloudGraphPreprocessing import *
 
 from base_models.FeatureConcatModel import *
 from base_models.PointNet import *
