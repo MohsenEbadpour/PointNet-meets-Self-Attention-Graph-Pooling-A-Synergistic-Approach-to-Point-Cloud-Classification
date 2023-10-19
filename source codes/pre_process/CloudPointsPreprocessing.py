@@ -274,7 +274,7 @@ def handle_threads(num,dataset):
 def multi_process(num,dataset):
     procs = []
     for idx in tqdm(range(num)):
-        proc = Process(target=prepare_dataset, args=(num,))
+        proc = Process(target=prepare_dataset, args=(num,idx,dataset,))
         procs.append(proc)
     for process in tqdm(proc):
         process.start()
