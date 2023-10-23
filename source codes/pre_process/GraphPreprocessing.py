@@ -1,24 +1,32 @@
 import os.path as path
 import networkx as nx
 import torch
-from torch_geometric.data import Dataset as TGDataset, Data as TGData
+from torch_geometric.data import  Dataset as TGDataset, Data as TGData
 import numpy as np
 import zipfile
 import os
 import pickle
-class Graph(TGData):
+from torch.utils.data import random_split
+import torch_geometric
+class Graph(TGDataset):
 
     def __init__(self,ds_name,root="./", transform=None, pre_transform=None, pre_filter=None):
         super().__init__(root, transform, pre_transform, pre_filter)
         self.dataset_name = ds_name
-        self.graph = nx.DiGraph()
+        self.graph = []
 
     def __len__(self):
         return len(self.graph)
 
     def __getitem__(self, idx):
         return self.graph[idx]
-    
+
+    def get(self, idx: int):
+        return self.graph[idx]
+
+    def len(self):
+        return len(self.graph)
+
     def get_sets(self,dataset,train=0.99,test=0.1):
         train_size = int(train*len(dataset))
         test_size = int(test*len(dataset))
@@ -238,8 +246,11 @@ class Graph(TGData):
             print("Graph " + str(i) + " saved")
 
     def read_from_file(self):
-        for i in range(len(self.graph)):
-            self.graph[i] = nx.read_gml("../../datasets/graph" + self.dataset_name + "/processed/" + self.dataset_name + "_" + str(i) + ".gml")
+        lst = os.listdir("../datasets/graph/" + self.dataset_name + "/processed/") # your directory path
+        number_files = len(lst)
+        print(lst)
+        for i in range(number_files):
+            self.graph.append(nx.read_gml("../datasets/graph/" + self.dataset_name + "/processed/" + self.dataset_name + "_" + str(i) + ".gml"))
             print("Graph " + str(i) + " read")
 
 
@@ -251,12 +262,23 @@ def pre_process(dataset_name):
 def load_graph(dataset_name):
     graph = Graph(dataset_name)
     graph.read_from_file()
-    return graph.graph
+    return graph
 
-pre_process("MUTAG")
-pre_process("ENZYMES")
-pre_process("NCI1")
-pre_process("PROTEINS_full")
+
+def GetSets(dataset,train=0.99,valid=0.01):
+    train_ratio = int(len(dataset)*train)
+    validation_ratio = int(len(dataset)*valid)
+    training_set,validation_set,test_set = random_split(dataset,[train_ratio , validation_ratio,len(dataset) - (train_ratio + validation_ratio)])
+    return training_set,validation_set,test_set
+
+
+
+
+
+# pre_process("MUTAG")
+# pre_process("ENZYMES")
+# pre_process("NCI1")
+# pre_process("PROTEINS_full")
                     
         
 

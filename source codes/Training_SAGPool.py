@@ -2,7 +2,10 @@ import torch
 from torch import nn
 from torch import optim
 from torch.nn import functional as F
-from torch.utils.data import Dataset as TDataset, DataLoader as TDataloader
+# from torch_geometric.loader import DataLoader
+from torch.utils.data import Dataset as TDataset, DataLoader 
+# from torch.utils.data import Dataset as TDataset, DataLoader as TDataloader
+from torch_geometric.datasets import TUDataset
 from torch.utils.data import random_split
 
 import numpy as np
@@ -13,40 +16,38 @@ import seaborn as sns
 from pathlib import Path
 import plotly.graph_objects as go
 from tqdm import tqdm
-from torch_geometric.data import Dataset as TGDataset, Data as TGData
-from torch_geometric.loader import DataLoader as TGDataLoader
+# from torch_geometric.data import Dataset as TGDataset, Data as TGData
+# from torch_geometric.loader import DataLoader as TGDataLoader
 from torch_geometric.utils.convert import from_networkx
 from torch_geometric import transforms as T
 from torch_geometric.nn import GCNConv,Linear,GATConv,GATv2Conv,SAGEConv, GATConv,ChebConv
 from torch_geometric.nn import GraphConv, TopKPooling
 from torch_geometric.nn import global_mean_pool as gap, global_max_pool as gmp
-from pre_process.CloudPointsPreprocessing import *
-from pre_process.PointCloudGraphPreprocessing import *
-
-from base_models.FeatureConcatModel import *
-from base_models.PointNet import *
-from base_models.PointNetBasedGraphPoolingModel import *
+from pre_process.GraphPreprocessing import *
 from base_models.SelfAttentionGraphPooling import *
 
 from visualization.ReportVisualization import *
 
 
-path_global = Path("ModelNet10")
-dataset_pointcloud_test = PointCloudData(path_global, valid=True, folder='test',force_to_cal=False)
-dataset_pointcloud_train = PointCloudData(path_global, force_to_cal=False)
+DATASET_NAME="MUTAG"
+# dataset_graph=load_graph(DATASET_NAME)
 
-dataset_pointcloud_train_loader = TDataloader(dataset=dataset_pointcloud_train, batch_size=32, shuffle=True)
-dataset_pointcloud_test_loader = TDataloader(dataset=dataset_pointcloud_test, batch_size=64)
+graph_datset= load_graph("MUTAG")
 
+print(graph_datset.len())
+dataset = DataLoader(graph_datset, batch_size=32, shuffle=True)
 
-dataset_graph_test = PointCloudGraph(dataset_pointcloud_test)
-dataset_graph_train = PointCloudGraph(dataset_pointcloud_train)
-TrainSet,ValidationSet,TestSet = GetSets(dataset_graph_train,0.99,0.01)
+print(dataset)
+
+TrainSet,ValidationSet,TestSet = GetSets(dataset,0.99,0.01)
+print(TrainSet)
 BatchSize = 32
-TrainLoader = TGDataLoader(TrainSet, batch_size=BatchSize, shuffle=True)
-ValidationLoader = TGDataLoader(ValidationSet,batch_size=BatchSize,shuffle=False)
-TestLoader = TGDataLoader(dataset_graph_test,batch_size=BatchSize,shuffle=False)
+TrainLoader = DataLoader(TrainSet, batch_size=BatchSize, shuffle=True)
+print(TrainLoader)
+ValidationLoader = DataLoader(ValidationSet,batch_size=BatchSize,shuffle=False)
+TestLoader = DataLoader(TestSet,batch_size=BatchSize,shuffle=False)
 
+print(TrainLoader)
 
 def TestPerformance(model,loader):
     with torch.no_grad():
@@ -54,9 +55,8 @@ def TestPerformance(model,loader):
         correct = 0.
         loss = 0.
         for data in loader:
-            data = ConvertBatchToGraph(data)
-            data = data.to("cuda")
-            model = model.to("cuda")
+            data = data.to("cpu")
+            model = model.to("cpu")
             out = model(data)
             pred = out.max(dim=1)[1]
             correct += pred.eq(data.y).sum().item()
@@ -65,7 +65,7 @@ def TestPerformance(model,loader):
 
 
 def Train(model,TrainLoader,ValidationLoader,epoch:int,lr=0.01,weight_decay=5e-4,show=True,name="Self-Attention Graph Pooling"):
-    device = "cuda"
+    device = "cpu"
     model = model.to(device)
     opt = optim.Adam(model.parameters(), lr=lr, weight_decay=weight_decay)
     model.train()
@@ -91,12 +91,10 @@ def Train(model,TrainLoader,ValidationLoader,epoch:int,lr=0.01,weight_decay=5e-4
 
     for ite in range(epoch):
         model.train()
-        for i, data in tqdm(enumerate(TrainLoader)):
-            data = ConvertBatchToGraph(data)
+        for i, data in (enumerate(TrainLoader)):
             opt.zero_grad()
-
-            data = data.to("cuda")
-            model = model.to("cuda")
+            data = data.to("cpu")
+            model = model.to("cpu")
             out = model(data)
             loss = F.cross_entropy(out, data.y)
             loss.backward()
@@ -159,101 +157,6 @@ MAINargs = {
 
 
 model = SAGPoolNet(**MAINargs)
-acc,model = Train(model,TrainLoader=dataset_pointcloud_train_loader,ValidationLoader=dataset_pointcloud_test_loader,
+acc,model = Train(model,TrainLoader=graph_datset,ValidationLoader=graph_datset,
             epoch=60,lr=0.01,weight_decay=0.0005,show=True,name="Self-Attention Graph Pooling")
-
-
-def TestPerfomancePointNet(model,loader):
-    with torch.no_grad():
-        model.eval()
-        correct = 0.
-        loss = 0.
-        for data in loader:
-            inputs, labels = data['pointcloud'].to("cuda:0").float(), data['category'].to("cuda:0")
-            inputs = inputs.to("cuda")
-            labels = labels.to("cuda")
-            model = model.to("cuda")
-            out,_,__ = model(inputs.transpose(1,2))
-            pred = out.max(dim=1)[1]
-            correct += pred.eq(labels).sum().item()
-            loss += PointNetLoss(out, labels, _, __).item()
-
-    return correct / len(loader.dataset),loss / len(loader.dataset)
-
-
-def TrainPointNet(model, train_loader, val_loader,lr=0.01,weight_decay=0.0005, epochs=30, name="PointNet"):
-    param_size = 0
-    for param in model.parameters():
-        param_size += param.nelement() * param.element_size()
-    buffer_size = 0
-    for buffer in model.buffers():
-        buffer_size += buffer.nelement() * buffer.element_size()
-    size_all_mb = (param_size + buffer_size) / 1024**2
-    size_all_mb = round(size_all_mb,3)
-
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-    print(device)
-    model = model.to(device)
-
-    optimizer = optim.Adam(model.parameters(), lr=lr, weight_decay=weight_decay)
-    loss_train = []
-    acc_train = []
-
-    loss_val = []
-    acc_val = []
-    for epoch in range(epochs):
-        model.train()
-
-        for i, data in tqdm(enumerate(train_loader, 0)):
-            inputs, labels = data['pointcloud'].to(device).float(), data['category'].to(device)
-            optimizer.zero_grad()
-            outputs, m3x3, m64x64 = model(inputs.transpose(1,2))
-            loss = PointNetLoss(outputs, labels, m3x3, m64x64)
-            loss.backward()
-            optimizer.step()
-
-
-        val_acc,val_loss = TestPerfomancePointNet(model,val_loader)
-        train_acc,train_loss = TestPerfomancePointNet(model,train_loader)
-
-        acc_val.append(val_acc)
-        loss_val.append(val_loss)
-
-        acc_train.append(train_acc)
-        loss_train.append(train_loss)
-
-        print("Epoch: {0} | Train Loss: {1} | Train Acc: {2} | Val Loss: {3} | Val Acc: {4}".format(epoch,train_loss,train_acc,val_loss,val_acc,size_all_mb))
-
-    test_acc = max(acc_val)
-
-
-    sns.set_style("whitegrid")
-    plt.rcParams['figure.figsize']= (21,5)
-    h,w = 1,2
-    plt.subplot(h,w,1)
-    plt.plot(loss_train,label="Train loss")
-    plt.plot(loss_val,label="Validation loss")
-    plt.title("Loss Report | {0} | ModelSize: {1} MB".format(name,size_all_mb))
-    plt.xlabel("Epoch")
-    plt.ylabel("NLLLoss")
-    plt.legend()
-    #plt.show()
-
-    plt.subplot(h,w,2)
-    plt.plot(acc_train,label="Train Accuracy")
-    plt.plot(acc_val,label="Validation Accuracy")
-    plt.title("Accuracy Report | Test Accuracy: {0}%".format(round(test_acc*100,2)))
-    plt.xlabel("Epoch")
-    plt.legend()
-
-    plt.tight_layout()
-    plt.savefig("./{0}.png".format(name))
-    plt.show()
-    plt.clf()
-
-    return round(test_acc*100,2),model
-
-
-pointnet = PointNet()
-acc, model = TrainPointNet(pointnet, dataset_pointcloud_train_loader, dataset_pointcloud_test_loader, lr=0.001, weight_decay=0.0005, epochs=60, name="PointNet")
 
