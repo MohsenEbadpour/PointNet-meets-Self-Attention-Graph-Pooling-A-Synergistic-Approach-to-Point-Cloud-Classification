@@ -7,6 +7,7 @@ import zipfile
 import os
 import pickle
 from torch.utils.data import random_split
+from torch_geometric.utils.convert import from_networkx
 import torch_geometric
 class Graph(TGDataset):
 
@@ -248,7 +249,6 @@ class Graph(TGDataset):
     def read_from_file(self):
         lst = os.listdir("../datasets/graph/" + self.dataset_name + "/processed/") # your directory path
         number_files = len(lst)
-        print(lst)
         for i in range(number_files):
             self.graph.append(nx.read_gml("../datasets/graph/" + self.dataset_name + "/processed/" + self.dataset_name + "_" + str(i) + ".gml"))
             print("Graph " + str(i) + " read")
@@ -264,6 +264,10 @@ def load_graph(dataset_name):
     graph.read_from_file()
     return graph
 
+def ConvertBatchToGraph(batch):
+    # print(batch.nodes.data())
+    data = from_networkx(batch)
+    return torch_geometric.data.Batch.from_data_list([data])
 
 def GetSets(dataset,train=0.99,valid=0.01):
     train_ratio = int(len(dataset)*train)

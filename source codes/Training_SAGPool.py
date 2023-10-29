@@ -55,6 +55,7 @@ def TestPerformance(model,loader):
         correct = 0.
         loss = 0.
         for data in loader:
+            data = ConvertBatchToGraph(data)
             data = data.to("cpu")
             model = model.to("cpu")
             out = model(data)
@@ -92,6 +93,8 @@ def Train(model,TrainLoader,ValidationLoader,epoch:int,lr=0.01,weight_decay=5e-4
     for ite in range(epoch):
         model.train()
         for i, data in (enumerate(TrainLoader)):
+            print("salam",data)
+            data = ConvertBatchToGraph(data)
             opt.zero_grad()
             data = data.to("cpu")
             model = model.to("cpu")
