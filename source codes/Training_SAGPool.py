@@ -30,24 +30,20 @@ from visualization.ReportVisualization import *
 
 
 DATASET_NAME="MUTAG"
-# dataset_graph=load_graph(DATASET_NAME)
 
-graph_datset= load_graph("MUTAG")
+graph_datset , num_classes = load_graph(DATASET_NAME)
 
-print(graph_datset.len())
+
 dataset = DataLoader(graph_datset, batch_size=32, shuffle=True)
 
-print(dataset)
 
 TrainSet,ValidationSet,TestSet = GetSets(dataset,0.99,0.01)
-print(TrainSet)
 BatchSize = 32
 TrainLoader = DataLoader(TrainSet, batch_size=BatchSize, shuffle=True)
-print(TrainLoader)
+
 ValidationLoader = DataLoader(ValidationSet,batch_size=BatchSize,shuffle=False)
 TestLoader = DataLoader(TestSet,batch_size=BatchSize,shuffle=False)
 
-print(TrainLoader)
 
 def TestPerformance(model,loader):
     with torch.no_grad():
@@ -55,7 +51,7 @@ def TestPerformance(model,loader):
         correct = 0.
         loss = 0.
         for data in loader:
-            data = ConvertBatchToGraph(data)
+            # data = ConvertBatchToGraph(data)
             data = data.to("cpu")
             model = model.to("cpu")
             out = model(data)
@@ -77,9 +73,9 @@ def Train(model,TrainLoader,ValidationLoader,epoch:int,lr=0.01,weight_decay=5e-4
     acc_val = []
 
     acc_test = []
-
     min_loss = 1e10
     patience = 0
+    
     param_size = 0
     for param in model.parameters():
         param_size += param.nelement() * param.element_size()
@@ -89,16 +85,19 @@ def Train(model,TrainLoader,ValidationLoader,epoch:int,lr=0.01,weight_decay=5e-4
     size_all_mb = (param_size + buffer_size) / 1024**2
     size_all_mb = round(size_all_mb,3)
     print("Model Size: {0} MB".format(size_all_mb))
-
     for ite in range(epoch):
         model.train()
-        for i, data in (enumerate(TrainLoader)):
-            print("salam",data)
-            data = ConvertBatchToGraph(data)
+        for i, data in enumerate(TrainLoader):
+            print("data",data)
+            # data = ConvertBatchToGraph(data)
+            print("len",len(data))
+            print(data)
             opt.zero_grad()
             data = data.to("cpu")
             model = model.to("cpu")
             out = model(data)
+            print(out)
+            print(data.y)
             loss = F.cross_entropy(out, data.y)
             loss.backward()
             opt.step()
@@ -146,7 +145,7 @@ def Train(model,TrainLoader,ValidationLoader,epoch:int,lr=0.01,weight_decay=5e-4
 
 
 MAINargs = {
-    "SAGPoolNet_dataset_features":10,
+    "SAGPoolNet_dataset_features":7,
     "out_channels":1,
     "is_hierarchical":True,
     "use_w_for_concat":True,
@@ -155,11 +154,12 @@ MAINargs = {
     "Conv":GATConv,
     "heads":6,
     "concat":False,
-    "send_feature":False
+    "send_feature":False,
+    "num_classes":args.num_classes
 }
 
 
 model = SAGPoolNet(**MAINargs)
-acc,model = Train(model,TrainLoader=graph_datset,ValidationLoader=graph_datset,
+acc,model = Train(model,TrainLoader=TrainLoader,ValidationLoader=ValidationLoader ,
             epoch=60,lr=0.01,weight_decay=0.0005,show=True,name="Self-Attention Graph Pooling")
 

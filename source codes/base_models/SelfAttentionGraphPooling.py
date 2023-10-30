@@ -45,12 +45,12 @@ class SAGPool(torch.nn.Module):
         return x, edge_index, edge_attr, batch, perm
     
 class SAGPoolNet(torch.nn.Module):
-    def __init__(self,SAGPoolNet_dataset_features=10,is_hierarchical=True,pooling_ratio=0.2,p_dropout=0.2,hidden_features=128,send_feature=False,use_w_for_concat=False,**karg):
+    def __init__(self,SAGPoolNet_dataset_features=10,is_hierarchical=True,pooling_ratio=0.2,p_dropout=0.2,hidden_features=128,send_feature=False,use_w_for_concat=False,num_classes=10,**karg):
         super(SAGPoolNet, self).__init__()
         from torch.nn.init import xavier_uniform_,zeros_
         self.num_features = SAGPoolNet_dataset_features
         self.hidden_features = hidden_features
-        self.num_classes = 10
+        self.num_classes = num_classes
         self.pooling_ratio = pooling_ratio
         self.p = p_dropout
 

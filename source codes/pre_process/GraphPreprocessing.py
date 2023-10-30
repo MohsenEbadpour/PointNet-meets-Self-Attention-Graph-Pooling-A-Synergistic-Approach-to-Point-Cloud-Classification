@@ -16,6 +16,7 @@ class Graph(TGDataset):
         self.dataset_name = ds_name
         self.graph = []
 
+
     def __len__(self):
         return len(self.graph)
 
@@ -249,24 +250,65 @@ class Graph(TGDataset):
     def read_from_file(self):
         lst = os.listdir("../datasets/graph/" + self.dataset_name + "/processed/") # your directory path
         number_files = len(lst)
+        labels = []
         for i in range(number_files):
-            self.graph.append(nx.read_gml("../datasets/graph/" + self.dataset_name + "/processed/" + self.dataset_name + "_" + str(i) + ".gml"))
+            g = nx.read_gml("../datasets/graph/" + self.dataset_name + "/processed/" + self.dataset_name + "_" + str(i) + ".gml")
+            class_label = g.graph.get('classes', None)
+            if class_label is not None:
+                labels.append(class_label[0])
+            self.graph.append(g)
             print("Graph " + str(i) + " read")
-
-
+        # print(labels)
+        return len(set(labels))
 
 def pre_process(dataset_name):
-    graph = Graph(dataset_name)
+    graph = Graph(dataset_name,)
     graph.pre_process()
 
 def load_graph(dataset_name):
-    graph = Graph(dataset_name)
-    graph.read_from_file()
-    return graph
+    graph = Graph(dataset_name,)
+    num_classes = graph.read_from_file()
+    
+    return graph ,num_classes
+
+def get_xy(nx_graph):
+    x_list = []
+    y_list = []
+
+# Iterate over nodes and extract centrality measures
+    for node_id in nx_graph.nodes:
+        node_data = nx_graph.nodes[node_id]
+        # Extract centrality measures
+        betweenness_centrality = node_data.get('betweenness_centrality', 0.0)
+        katz_centrality = node_data.get('katz_centrality', 0.0)
+        closeness_centrality = node_data.get('closeness_centrality', 0.0)
+        eigenvector_centrality = node_data.get('eigenvector_centrality', 0.0)
+        harmonic_centrality = node_data.get('harmonic_centrality', 0.0)
+        load_centrality = node_data.get('load_centrality', 0.0)
+        pagerank = node_data.get('pagerank', 0.0)
+
+        # Append the centrality measures to x_list
+        x_list.append([betweenness_centrality, katz_centrality, closeness_centrality, eigenvector_centrality,
+                    harmonic_centrality, load_centrality, pagerank])
+        
+        # Extract class labels (if available) and append to y_list
+        class_label = node_data.get('labels', None)
+        y_list.append(class_label)
+
+    # Convert the lists to PyTorch tensors
+    x = torch.Tensor(x_list)
+    y = torch.Tensor(y_list)
+
+    return x, y
+
 
 def ConvertBatchToGraph(batch):
-    # print(batch.nodes.data())
+    
     data = from_networkx(batch)
+    x,y = get_xy(batch)
+    data.x = x
+    data.y = y
+    print(data)
     return torch_geometric.data.Batch.from_data_list([data])
 
 def GetSets(dataset,train=0.99,valid=0.01):
