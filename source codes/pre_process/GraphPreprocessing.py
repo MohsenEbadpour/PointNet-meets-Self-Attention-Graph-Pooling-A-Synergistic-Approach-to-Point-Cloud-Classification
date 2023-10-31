@@ -21,7 +21,12 @@ class Graph(TGDataset):
         return len(self.graph)
 
     def __getitem__(self, idx):
-        return self.graph[idx]
+        graph = self.graph[idx]
+        data = from_networkx(graph)
+        x,y = get_xy(graph)
+        data.x = x
+        data.y = y
+        return data
 
     def get(self, idx: int):
         return self.graph[idx]
@@ -175,7 +180,7 @@ class Graph(TGDataset):
             cs = []
             for i in range(len(classes)):
                 cs.append([int(j) for j in classes[i]])
-            
+
             i = 0
             for g in graph_db:
                 g.graph['classes'] = cs[i]
@@ -255,6 +260,9 @@ class Graph(TGDataset):
             g = nx.read_gml("../datasets/graph/" + self.dataset_name + "/processed/" + self.dataset_name + "_" + str(i) + ".gml")
             class_label = g.graph.get('classes', None)
             if class_label is not None:
+                if(class_label[0] == -1):
+                    class_label[0] = 0
+                    g.graph['classes'] = class_label
                 labels.append(class_label[0])
             self.graph.append(g)
             print("Graph " + str(i) + " read")
@@ -262,11 +270,11 @@ class Graph(TGDataset):
         return len(set(labels))
 
 def pre_process(dataset_name):
-    graph = Graph(dataset_name,)
+    graph = Graph(dataset_name)
     graph.pre_process()
 
 def load_graph(dataset_name):
-    graph = Graph(dataset_name,)
+    graph = Graph(dataset_name)
     num_classes = graph.read_from_file()
     
     return graph ,num_classes
@@ -303,13 +311,16 @@ def get_xy(nx_graph):
 
 
 def ConvertBatchToGraph(batch):
+    list_of_graphs=[]    
+    for i in range(len(batch)):
+        x=batch[i].x
+        edge_index=batch[i].edge_index
+        y=batch[i].classes
+        data = TGData(x=x,edge_index=edge_index,y=y)
+        list_of_graphs.append(data)
+
     
-    data = from_networkx(batch)
-    x,y = get_xy(batch)
-    data.x = x
-    data.y = y
-    print(data)
-    return torch_geometric.data.Batch.from_data_list([data])
+    return torch_geometric.data.Batch.from_data_list(list_of_graphs)
 
 def GetSets(dataset,train=0.99,valid=0.01):
     train_ratio = int(len(dataset)*train)

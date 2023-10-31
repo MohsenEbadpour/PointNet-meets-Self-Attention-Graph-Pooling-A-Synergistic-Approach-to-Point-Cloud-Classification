@@ -3,7 +3,8 @@ from torch import nn
 from torch import optim
 from torch.nn import functional as F
 # from torch_geometric.loader import DataLoader
-from torch.utils.data import Dataset as TDataset, DataLoader 
+# from torch.utils.data import Dataset as TDataset, DataLoader 
+from torch_geometric.data import DataLoader
 # from torch.utils.data import Dataset as TDataset, DataLoader as TDataloader
 from torch_geometric.datasets import TUDataset
 from torch.utils.data import random_split
@@ -31,16 +32,13 @@ from visualization.ReportVisualization import *
 
 DATASET_NAME="MUTAG"
 
-graph_datset , num_classes = load_graph(DATASET_NAME)
+graph_dataset , num_classes = load_graph(DATASET_NAME)
 
-
-dataset = DataLoader(graph_datset, batch_size=32, shuffle=True)
-
-
-TrainSet,ValidationSet,TestSet = GetSets(dataset,0.99,0.01)
+TrainSet,ValidationSet,TestSet = GetSets(graph_dataset,0.8,0.2)
 BatchSize = 32
-TrainLoader = DataLoader(TrainSet, batch_size=BatchSize, shuffle=True)
 
+
+TrainLoader = DataLoader(TrainSet, batch_size=BatchSize, shuffle=True)
 ValidationLoader = DataLoader(ValidationSet,batch_size=BatchSize,shuffle=False)
 TestLoader = DataLoader(TestSet,batch_size=BatchSize,shuffle=False)
 
@@ -51,7 +49,7 @@ def TestPerformance(model,loader):
         correct = 0.
         loss = 0.
         for data in loader:
-            # data = ConvertBatchToGraph(data)
+            data = ConvertBatchToGraph(data)
             data = data.to("cpu")
             model = model.to("cpu")
             out = model(data)
@@ -88,15 +86,15 @@ def Train(model,TrainLoader,ValidationLoader,epoch:int,lr=0.01,weight_decay=5e-4
     for ite in range(epoch):
         model.train()
         for i, data in enumerate(TrainLoader):
-            print("data",data)
-            # data = ConvertBatchToGraph(data)
-            print("len",len(data))
+            # print("data",data)
+            data = ConvertBatchToGraph(data)
+            # print("len",len(data))
             print(data)
             opt.zero_grad()
             data = data.to("cpu")
             model = model.to("cpu")
             out = model(data)
-            print(out)
+            # print(len(out))
             print(data.y)
             loss = F.cross_entropy(out, data.y)
             loss.backward()
@@ -155,7 +153,7 @@ MAINargs = {
     "heads":6,
     "concat":False,
     "send_feature":False,
-    "num_classes":args.num_classes
+    "num_classes":num_classes
 }
 
 
