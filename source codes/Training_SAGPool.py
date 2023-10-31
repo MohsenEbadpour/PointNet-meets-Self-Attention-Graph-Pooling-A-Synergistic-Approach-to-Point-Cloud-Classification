@@ -33,7 +33,7 @@ from visualization.ReportVisualization import *
 DATASET_NAME="MUTAG"
 
 graph_dataset , num_classes = load_graph(DATASET_NAME)
-
+print(num_classes)
 TrainSet,ValidationSet,TestSet = GetSets(graph_dataset,0.8,0.2)
 BatchSize = 32
 
@@ -86,16 +86,14 @@ def Train(model,TrainLoader,ValidationLoader,epoch:int,lr=0.01,weight_decay=5e-4
     for ite in range(epoch):
         model.train()
         for i, data in enumerate(TrainLoader):
-            # print("data",data)
             data = ConvertBatchToGraph(data)
-            # print("len",len(data))
-            print(data)
             opt.zero_grad()
             data = data.to("cpu")
             model = model.to("cpu")
             out = model(data)
             # print(len(out))
-            print(data.y)
+            # print(len(data.y))
+
             loss = F.cross_entropy(out, data.y)
             loss.backward()
             opt.step()
@@ -135,7 +133,7 @@ def Train(model,TrainLoader,ValidationLoader,epoch:int,lr=0.01,weight_decay=5e-4
         plt.legend()
 
         plt.tight_layout()
-        plt.savefig("./{0}.png".format(name))
+        plt.savefig("../results/self-attention-graph-pooling/graph_dataset/{0},{1}.png".format(name,DATASET_NAME))
         plt.show()
         plt.clf()
 
@@ -143,7 +141,7 @@ def Train(model,TrainLoader,ValidationLoader,epoch:int,lr=0.01,weight_decay=5e-4
 
 
 MAINargs = {
-    "SAGPoolNet_dataset_features":7,
+    "SAGPoolNet_dataset_features":6,
     "out_channels":1,
     "is_hierarchical":True,
     "use_w_for_concat":True,

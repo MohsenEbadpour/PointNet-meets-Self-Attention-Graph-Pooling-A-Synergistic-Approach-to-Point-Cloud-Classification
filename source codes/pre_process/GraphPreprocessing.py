@@ -177,13 +177,19 @@ class Graph(TGDataset):
                 classes = [str.strip(i) for i in list(f)]
             f.closed
             classes = [i.split(',') for i in classes]
+            # print(classes)
             cs = []
             for i in range(len(classes)):
-                cs.append([int(j) for j in classes[i]])
+                cs.append(int(classes[i][0]))
 
             i = 0
+            uniqe_class = set(cs)
+            class_dict = {}
+            for j in range(len(uniqe_class)):
+                class_dict[list(uniqe_class)[j]] = j
+
             for g in graph_db:
-                g.graph['classes'] = cs[i]
+                g.graph['classes'] = class_dict[cs[i]]
                 i += 1
 
         # Targets.
@@ -209,9 +215,9 @@ class Graph(TGDataset):
             features = []
             features_name = []
 
-            betweenness_centrality = nx.betweenness_centrality(g,weight="weight")
-            features.append(betweenness_centrality)
-            features_name.append("betweenness_centrality")
+            # betweenness_centrality = nx.betweenness_centrality(g,weight="weight")
+            # features.append(betweenness_centrality)
+            # features_name.append("betweenness_centrality")
 
             katz_centrality = nx.katz_centrality(g,weight="weight")
             features.append(katz_centrality)
@@ -260,12 +266,9 @@ class Graph(TGDataset):
             g = nx.read_gml("../datasets/graph/" + self.dataset_name + "/processed/" + self.dataset_name + "_" + str(i) + ".gml")
             class_label = g.graph.get('classes', None)
             if class_label is not None:
-                if(class_label[0] == -1):
-                    class_label[0] = 0
-                    g.graph['classes'] = class_label
-                labels.append(class_label[0])
+                labels.append(class_label)
             self.graph.append(g)
-            print("Graph " + str(i) + " read")
+        print("Dataset: " + self.dataset_name + " | Number of graphs: " + str(number_files) + " | Number of classes: " + str(len(set(labels))))
         # print(labels)
         return len(set(labels))
 
@@ -287,7 +290,7 @@ def get_xy(nx_graph):
     for node_id in nx_graph.nodes:
         node_data = nx_graph.nodes[node_id]
         # Extract centrality measures
-        betweenness_centrality = node_data.get('betweenness_centrality', 0.0)
+        # betweenness_centrality = node_data.get('betweenness_centrality', 0.0)
         katz_centrality = node_data.get('katz_centrality', 0.0)
         closeness_centrality = node_data.get('closeness_centrality', 0.0)
         eigenvector_centrality = node_data.get('eigenvector_centrality', 0.0)
@@ -296,7 +299,7 @@ def get_xy(nx_graph):
         pagerank = node_data.get('pagerank', 0.0)
 
         # Append the centrality measures to x_list
-        x_list.append([betweenness_centrality, katz_centrality, closeness_centrality, eigenvector_centrality,
+        x_list.append([ katz_centrality, closeness_centrality, eigenvector_centrality,
                     harmonic_centrality, load_centrality, pagerank])
         
         # Extract class labels (if available) and append to y_list
@@ -332,7 +335,7 @@ def GetSets(dataset,train=0.99,valid=0.01):
 
 
 
-# pre_process("MUTAG")
+pre_process("MUTAG")
 # pre_process("ENZYMES")
 # pre_process("NCI1")
 # pre_process("PROTEINS_full")
