@@ -30,7 +30,7 @@ from base_models.SelfAttentionGraphPooling import *
 from visualization.ReportVisualization import *
 
 
-DATASET_NAME="MUTAG"
+DATASET_NAME="PROTEINS_full"
 
 graph_dataset , num_classes = load_graph(DATASET_NAME)
 print(num_classes)
@@ -133,7 +133,7 @@ def Train(model,TrainLoader,ValidationLoader,epoch:int,lr=0.01,weight_decay=5e-4
         plt.legend()
 
         plt.tight_layout()
-        plt.savefig("../results/self-attention-graph-pooling/graph_dataset/{0},{1}.png".format(name,DATASET_NAME))
+        plt.savefig("../results/self-attention-graph-pooling/graph_dataset/{0},{1}_with_label.png".format(name,DATASET_NAME))
         plt.show()
         plt.clf()
 
@@ -141,7 +141,7 @@ def Train(model,TrainLoader,ValidationLoader,epoch:int,lr=0.01,weight_decay=5e-4
 
 
 MAINargs = {
-    "SAGPoolNet_dataset_features":6,
+    "SAGPoolNet_dataset_features":8,
     "out_channels":1,
     "is_hierarchical":True,
     "use_w_for_concat":True,

@@ -215,9 +215,9 @@ class Graph(TGDataset):
             features = []
             features_name = []
 
-            # betweenness_centrality = nx.betweenness_centrality(g,weight="weight")
-            # features.append(betweenness_centrality)
-            # features_name.append("betweenness_centrality")
+            betweenness_centrality = nx.betweenness_centrality(g,weight="weight")
+            features.append(betweenness_centrality)
+            features_name.append("betweenness_centrality")
 
             katz_centrality = nx.katz_centrality(g,weight="weight")
             features.append(katz_centrality)
@@ -290,17 +290,19 @@ def get_xy(nx_graph):
     for node_id in nx_graph.nodes:
         node_data = nx_graph.nodes[node_id]
         # Extract centrality measures
-        # betweenness_centrality = node_data.get('betweenness_centrality', 0.0)
+        betweenness_centrality = node_data.get('betweenness_centrality', 0.0)
         katz_centrality = node_data.get('katz_centrality', 0.0)
         closeness_centrality = node_data.get('closeness_centrality', 0.0)
         eigenvector_centrality = node_data.get('eigenvector_centrality', 0.0)
         harmonic_centrality = node_data.get('harmonic_centrality', 0.0)
         load_centrality = node_data.get('load_centrality', 0.0)
         pagerank = node_data.get('pagerank', 0.0)
-
+        # extract labels
+        labels = node_data.get('labels', 0.0)
         # Append the centrality measures to x_list
-        x_list.append([ katz_centrality, closeness_centrality, eigenvector_centrality,
-                    harmonic_centrality, load_centrality, pagerank])
+        x_list.append([betweenness_centrality, katz_centrality, closeness_centrality, eigenvector_centrality,
+                    harmonic_centrality, load_centrality, pagerank, labels[0]])
+        # x_list.append([labels])
         
         # Extract class labels (if available) and append to y_list
         class_label = node_data.get('labels', None)
@@ -335,7 +337,7 @@ def GetSets(dataset,train=0.99,valid=0.01):
 
 
 
-pre_process("MUTAG")
+# pre_process("MUTAG")
 # pre_process("ENZYMES")
 # pre_process("NCI1")
 # pre_process("PROTEINS_full")
