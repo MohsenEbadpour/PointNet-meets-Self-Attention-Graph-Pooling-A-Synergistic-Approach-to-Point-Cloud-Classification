@@ -21,7 +21,7 @@ import pickle
 
 
 
-path_global = Path("ModelNet10")
+path_global = Path("../../datasets/pointcloud/raw/modelnet-10/ModelNet10")
 
 
 def load_data(path):
@@ -283,9 +283,9 @@ def multi_process(num,dataset):
 
 
 #custom_transforms = transforms.Compose([PointSampler(1024),Normalize(), RandRotation_z(), RandomNoise(),ToTensor()])
-#train_dataset = PointCloudData(path_global,force_to_cal=True)
-#valid_dataset = PointCloudData(path_global, valid=True, folder='test',force_to_cal=True)
+train_dataset = PointCloudData(path_global,force_to_cal=True)
+valid_dataset = PointCloudData(path_global, valid=True, folder='test',force_to_cal=True)
 
-#handle_threads(20,train_dataset)
-#handle_threads(20,valid_dataset)
+handle_threads(20,train_dataset)
+handle_threads(20,valid_dataset)
 
