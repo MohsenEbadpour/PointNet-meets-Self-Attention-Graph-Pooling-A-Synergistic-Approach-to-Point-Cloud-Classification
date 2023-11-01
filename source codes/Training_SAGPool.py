@@ -1,39 +1,18 @@
 import torch
-from torch import nn
 from torch import optim
 from torch.nn import functional as F
-# from torch_geometric.loader import DataLoader
-# from torch.utils.data import Dataset as TDataset, DataLoader 
 from torch_geometric.data import DataLoader
-# from torch.utils.data import Dataset as TDataset, DataLoader as TDataloader
-from torch_geometric.datasets import TUDataset
-from torch.utils.data import random_split
-
-import numpy as np
-import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
-
-from pathlib import Path
-import plotly.graph_objects as go
-from tqdm import tqdm
-# from torch_geometric.data import Dataset as TGDataset, Data as TGData
-# from torch_geometric.loader import DataLoader as TGDataLoader
-from torch_geometric.utils.convert import from_networkx
-from torch_geometric import transforms as T
 from torch_geometric.nn import GCNConv,Linear,GATConv,GATv2Conv,SAGEConv, GATConv,ChebConv
-from torch_geometric.nn import GraphConv, TopKPooling
-from torch_geometric.nn import global_mean_pool as gap, global_max_pool as gmp
 from pre_process.GraphPreprocessing import *
 from base_models.SelfAttentionGraphPooling import *
-
 from visualization.ReportVisualization import *
 
 
 DATASET_NAME="PROTEINS_full"
 
 graph_dataset , num_classes = load_graph(DATASET_NAME)
-print(num_classes)
 TrainSet,ValidationSet,TestSet = GetSets(graph_dataset,0.8,0.2)
 BatchSize = 32
 
