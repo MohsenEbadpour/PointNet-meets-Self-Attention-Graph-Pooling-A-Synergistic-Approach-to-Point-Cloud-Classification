@@ -1,24 +1,39 @@
 import os.path as path
 import networkx as nx
 import torch
-from torch_geometric.data import Dataset as TGDataset, Data as TGData
+from torch_geometric.data import  Dataset as TGDataset, Data as TGData
 import numpy as np
 import zipfile
 import os
 import pickle
-class Graph(TGData):
+from torch.utils.data import random_split
+from torch_geometric.utils.convert import from_networkx
+import torch_geometric
+class Graph(TGDataset):
 
     def __init__(self,ds_name,root="./", transform=None, pre_transform=None, pre_filter=None):
         super().__init__(root, transform, pre_transform, pre_filter)
         self.dataset_name = ds_name
-        self.graph = nx.DiGraph()
+        self.graph = []
+
 
     def __len__(self):
         return len(self.graph)
 
     def __getitem__(self, idx):
+        graph = self.graph[idx]
+        data = from_networkx(graph)
+        x,y = get_xy(graph)
+        data.x = x
+        data.y = y
+        return data
+
+    def get(self, idx: int):
         return self.graph[idx]
-    
+
+    def len(self):
+        return len(self.graph)
+
     def get_sets(self,dataset,train=0.99,test=0.1):
         train_size = int(train*len(dataset))
         test_size = int(test*len(dataset))
@@ -162,13 +177,19 @@ class Graph(TGData):
                 classes = [str.strip(i) for i in list(f)]
             f.closed
             classes = [i.split(',') for i in classes]
+            # print(classes)
             cs = []
             for i in range(len(classes)):
-                cs.append([int(j) for j in classes[i]])
-            
+                cs.append(int(classes[i][0]))
+
             i = 0
+            uniqe_class = set(cs)
+            class_dict = {}
+            for j in range(len(uniqe_class)):
+                class_dict[list(uniqe_class)[j]] = j
+
             for g in graph_db:
-                g.graph['classes'] = cs[i]
+                g.graph['classes'] = class_dict[cs[i]]
                 i += 1
 
         # Targets.
@@ -238,11 +259,18 @@ class Graph(TGData):
             print("Graph " + str(i) + " saved")
 
     def read_from_file(self):
-        for i in range(len(self.graph)):
-            self.graph[i] = nx.read_gml("../../datasets/graph" + self.dataset_name + "/processed/" + self.dataset_name + "_" + str(i) + ".gml")
-            print("Graph " + str(i) + " read")
-
-
+        lst = os.listdir("../datasets/graph/" + self.dataset_name + "/processed/") # your directory path
+        number_files = len(lst)
+        labels = []
+        for i in range(number_files):
+            g = nx.read_gml("../datasets/graph/" + self.dataset_name + "/processed/" + self.dataset_name + "_" + str(i) + ".gml")
+            class_label = g.graph.get('classes', None)
+            if class_label is not None:
+                labels.append(class_label)
+            self.graph.append(g)
+        print("Dataset: " + self.dataset_name + " | Number of graphs: " + str(number_files) + " | Number of classes: " + str(len(set(labels))))
+        # print(labels)
+        return len(set(labels))
 
 def pre_process(dataset_name):
     graph = Graph(dataset_name)
@@ -250,13 +278,69 @@ def pre_process(dataset_name):
 
 def load_graph(dataset_name):
     graph = Graph(dataset_name)
-    graph.read_from_file()
-    return graph.graph
+    num_classes = graph.read_from_file()
+    
+    return graph ,num_classes
 
-pre_process("MUTAG")
-pre_process("ENZYMES")
-pre_process("NCI1")
-pre_process("PROTEINS_full")
+def get_xy(nx_graph):
+    x_list = []
+    y_list = []
+
+# Iterate over nodes and extract centrality measures
+    for node_id in nx_graph.nodes:
+        node_data = nx_graph.nodes[node_id]
+        # Extract centrality measures
+        betweenness_centrality = node_data.get('betweenness_centrality', 0.0)
+        katz_centrality = node_data.get('katz_centrality', 0.0)
+        closeness_centrality = node_data.get('closeness_centrality', 0.0)
+        eigenvector_centrality = node_data.get('eigenvector_centrality', 0.0)
+        harmonic_centrality = node_data.get('harmonic_centrality', 0.0)
+        load_centrality = node_data.get('load_centrality', 0.0)
+        pagerank = node_data.get('pagerank', 0.0)
+        # extract labels
+        labels = node_data.get('labels', 0.0)
+        # Append the centrality measures to x_list
+        x_list.append([betweenness_centrality, katz_centrality, closeness_centrality, eigenvector_centrality,
+                    harmonic_centrality, load_centrality, pagerank, labels[0]])
+        # x_list.append([labels])
+        
+        # Extract class labels (if available) and append to y_list
+        class_label = node_data.get('labels', None)
+        y_list.append(class_label)
+
+    # Convert the lists to PyTorch tensors
+    x = torch.Tensor(x_list)
+    y = torch.Tensor(y_list)
+
+    return x, y
+
+
+def ConvertBatchToGraph(batch):
+    list_of_graphs=[]    
+    for i in range(len(batch)):
+        x=batch[i].x
+        edge_index=batch[i].edge_index
+        y=batch[i].classes
+        data = TGData(x=x,edge_index=edge_index,y=y)
+        list_of_graphs.append(data)
+
+    
+    return torch_geometric.data.Batch.from_data_list(list_of_graphs)
+
+def GetSets(dataset,train=0.99,valid=0.01):
+    train_ratio = int(len(dataset)*train)
+    validation_ratio = int(len(dataset)*valid)
+    training_set,validation_set,test_set = random_split(dataset,[train_ratio , validation_ratio,len(dataset) - (train_ratio + validation_ratio)])
+    return training_set,validation_set,test_set
+
+
+
+
+
+# pre_process("MUTAG")
+# pre_process("ENZYMES")
+# pre_process("NCI1")
+# pre_process("PROTEINS_full")
                     
         
 
