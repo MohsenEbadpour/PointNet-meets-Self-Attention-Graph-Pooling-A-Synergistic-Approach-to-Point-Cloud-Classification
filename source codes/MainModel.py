@@ -33,10 +33,10 @@ from torch_geometric.nn import global_mean_pool as gap, global_max_pool as gmp
 from torch_geometric.nn.pool.topk_pool import topk,filter_adj
 
 # Create class for training and testing all models
-class MainModel(torch.nn):
-    def __init__(self,model,dataset_name):
-        super().__init__()
+class MainModel():
+    def __init__(self,model,dataset_name,name=None):
         self.dataset_name = dataset_name
+        self.model_name = name
         self.model=model
         self.optimizer=None
         self.train_loader=None
@@ -90,9 +90,9 @@ class MainModel(torch.nn):
                     data = convert_function(data)
                 optimizer.zero_grad()
                 data = data.to("cpu")
-                model = model.to("cpu")
-                out = model(data)
-            
+                self.model = self.model.to("cpu")
+                out = self.model(data)
+
                 loss = F.cross_entropy(out, data.y)
                 loss.backward()
                 optimizer.step()
@@ -100,21 +100,19 @@ class MainModel(torch.nn):
 
 
 
-            train_acc = self.calculate_accuracy(Train=True)
-            train_loss = self.calculate_loss(Train=True)
+            train_acc = self.calculate_accuracy(Train=True,convert_function = convert_function)
+            train_loss = self.calculate_loss(Train=True , convert_function = convert_function)
             
-            val_acc = self.calculate_accuracy(Train=False)
-            val_loss = self.calculate_loss(Train=False)
+            val_acc = self.calculate_accuracy(Train=False,convert_function = convert_function)
+            val_loss = self.calculate_loss(Train=False,convert_function = convert_function)
             
-            self.train_losses.append(train_loss)
-            self.test_losses.append(val_loss)
-            self.train_accuracy.append(train_acc)
-            self.test_accuracy.append(val_acc)
+            
 
            
             print("Epoch: {0} | Train Loss: {1} | Train Acc: {2} | Val Loss: {3} | Val Acc: {4}".format(epoch,train_loss,train_acc,val_loss,val_acc,size_all_mb))
-            self.save_checkpoint("checkpoints/{1}/checkpoint_{0}.pt".format(epoch,self.dataset_name),epoch)
-
+            self.save_checkpoint("../checkpoints/graph/{1}_{2}_{0}.pt".format(epoch,self.dataset_name,self.model_name),epoch)
+        self.plot_loss(range(epochs),self.train_losses,self.test_losses,save="../results/self-attention-graph-pooling/graph_dataset/{0},{1}_{2}loss.png".format(self.dataset_name,self.model_name,epoch+1))
+        self.plot_accuracy(range(epochs),self.train_accuracy,self.test_accuracy,save="../results/self-attention-graph-pooling/graph_dataset/{0},{1}_{2}accuracy.png".format(self.dataset_name,self.model_name,epoch+1))
     def get_accuracy(self):
         test_acc = max(self.test_accuracy)
         train_acc = max(self.train_accuracy)
@@ -148,15 +146,15 @@ class MainModel(torch.nn):
         else:
             loader=self.validation_loader
         with torch.no_grad():
-            model.eval()
+            self.model.eval()
             correct = 0.
             loss = 0.
             for data in loader:
                 if convert_function:
                     data = convert_function(data)
                 data = data.to("cpu")
-                model = model.to("cpu")
-                out = model(data)
+                self.model = self.model.to("cpu")
+                out = self.model(data)
                 pred = out.max(dim=1)[1]
                 correct += pred.eq(data.y).sum().item()
         accuracy=correct / len(loader.dataset)
@@ -171,15 +169,15 @@ class MainModel(torch.nn):
         else:
             loader=self.validation_loader
         with torch.no_grad():
-            model.eval()
+            self.model.eval()
             correct = 0.
             loss = 0.
             for data in loader:
                 if convert_function:
                     data = convert_function(data)
                 data = data.to("cpu")
-                model = model.to("cpu")
-                out = model(data)
+                self.model = self.model.to("cpu")
+                out = self.model(data)
                 loss += F.cross_entropy(out,data.y).item()
         loss=loss / len(loader.dataset)
         if Train:
@@ -203,6 +201,7 @@ class MainModel(torch.nn):
     def plot_loss(self,epochs,train_losses,test_losses,save=None):
         plt.plot(epochs,train_losses,label="train")
         plt.plot(epochs,test_losses,label="test")
+        plt.title("Loss Results {0}".format(self.model_name))
         plt.xlabel("epochs")
         plt.ylabel("loss")
         plt.legend()
@@ -218,6 +217,7 @@ class MainModel(torch.nn):
         plt.plot(epochs,test_accuracy,label="test")
         plt.xlabel("epochs")
         plt.ylabel("accuracy")
+        plt.title("Accuracy Results {0} | Test accuracy:{1}%".format(self.model_name,round(max(test_accuracy)*100,2)))
         plt.legend()
         if save:
             plt.savefig(save)

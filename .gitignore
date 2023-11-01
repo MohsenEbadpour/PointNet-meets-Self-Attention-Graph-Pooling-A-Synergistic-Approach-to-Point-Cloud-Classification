@@ -2,3 +2,4 @@
 /dataset**
 ./dataset
 **/__pycache__
+/checkpoints
