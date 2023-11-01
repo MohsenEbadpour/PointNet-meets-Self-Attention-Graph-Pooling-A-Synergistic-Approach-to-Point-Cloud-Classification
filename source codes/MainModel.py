@@ -7,8 +7,34 @@ from torch_geometric.data import DataLoader
 import matplotlib.pyplot as plt
 
 # Create class for training and testing all models
+
 class MainModel():
-    def __init__(self,model,dataset_name,name=None):
+    """
+    MainModel class for training and testing all models
+
+    Attributes
+    ----------
+    model : torch.nn.Module
+        model to train and test
+    dataset_name : str
+        name of dataset
+    
+    name : str
+        name of model
+
+    optimizer : torch.optim
+
+    train_loader : torch.utils.data.DataLoader
+
+    validation_loader : torch.utils.data.DataLoader
+
+    test_loader : torch.utils.data.DataLoader
+    
+    epoch : int
+    
+         number of epochs        
+    """
+    def __init__(self,model,dataset_name,name=None)->None:
         self.dataset_name = dataset_name
         self.model_name = name
         self.model=model
@@ -28,9 +54,21 @@ class MainModel():
     
         
 
-    def load_data(self,batch_size=32,train_size=0.8,validation_size=0.2,transform=None,loader_function=None):
+    def load_data(self,batch_size=32,train_size=0.8,validation_size=0.2,transform=None,loader_function=None)->None:
+        """a function for loading dataset in train,validation and test
+
+        Args:
+            batch_size (int, optional): batch size of each epoch. Defaults to 32.
+            train_size (float, optional): Train ration of whole dataset. Defaults to 0.8.
+            validation_size (float, optional): validation ration  . Defaults to 0.2.
+            transform (_type_, optional): . Defaults to None.
+            loader_function (_type_, optional): a function for load dataset in specific format  . Defaults to None.
+        """
+        # check if loader_function is not None
         if loader_function:
             dataset,num_classes = loader_function(self.dataset_name)
+        
+        # split dataset to train,validation and test
         train_ratio = int(len(dataset)*train_size)
         validation_ratio = int(len(dataset)*validation_size)
         training_set,validation_set,test_set = random_split(dataset,[train_ratio , validation_ratio,len(dataset) - (train_ratio + validation_ratio)])
@@ -41,7 +79,15 @@ class MainModel():
     
 
      
-    def train(self,lr=0.01,weight_decay=0.0005, epochs=30,convert_function=None):
+    def train(self,lr=0.01,weight_decay=0.0005, epochs=30,convert_function=None) -> None:
+        """a function for training model 
+
+        Args:
+            lr (float, optional):  Learning rate. Defaults to 0.01.
+            weight_decay (float, optional) : Weight decay (L2 loss on parameters). Defaults to 0.0005.
+            epochs (int, optional): number of epochs. Defaults to 30.
+            convert_function (_type_, optional): a fuction for convert data to specific format. Defaults to None.
+        """
         self.epoch=epochs
         param_size = 0
         for param in self.model.parameters():
@@ -87,7 +133,13 @@ class MainModel():
             self.save_checkpoint("../checkpoints/graph/{1}_{2}_{0}.pt".format(epoch,self.dataset_name,self.model_name),epoch)
         self.plot_loss(range(epochs),self.train_losses,self.test_losses,save="../results/self-attention-graph-pooling/graph_dataset/{0},{1}_{2}loss.png".format(self.dataset_name,self.model_name,epoch+1))
         self.plot_accuracy(range(epochs),self.train_accuracy,self.test_accuracy,save="../results/self-attention-graph-pooling/graph_dataset/{0},{1}_{2}accuracy.png".format(self.dataset_name,self.model_name,epoch+1))
-    def get_accuracy(self):
+    
+    def get_accuracy(self)-> float:
+        """a function for get accuracy of model
+
+        Returns:
+            float: accuracy of model in test and train
+        """
         test_acc = max(self.test_accuracy)
         train_acc = max(self.train_accuracy)
         # return round with  3 digits
@@ -95,26 +147,59 @@ class MainModel():
 
 
         
-    def save_weights(self,path):
+    def save_weights(self,path:str)->None:
+        """function for save weights of model
+
+        Args:
+            path (str): path for save weights
+        """
         state_dict = self.model.state_dict()
         torch.save(state_dict, path)
     
-    def load_weights(self,path):
+    def load_weights(self,path:str)->None:
+        """function for load weights of model
+
+        Args:
+            path (str): path for load weights
+        """
         self.model.load_state_dict(torch.load(path))
 
-    def save_checkpoint(self,path,epoch):
+    def save_checkpoint(self,path:str,epoch:int)->None:
+        """function for save checkpoint of model
+
+        Args:
+            path (str): path for save checkpoint
+            epoch (int): number of epoch
+        """
         torch.save({
             'epoch': epoch,
             'model_state_dict': self.model.state_dict(),
             'optimizer_state_dict': self.optimizer.state_dict(),
             }, path)
-    def load_checkpoint(self,path):
+    def load_checkpoint(self,path:str)->None:
+        """function for load checkpoint of model
+
+        Args:
+            path (str): path for load checkpoint
+        """
+
+
         checkpoint = torch.load(path)
         self.model.load_state_dict(checkpoint['model_state_dict'])
         self.optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
         self.epoch = checkpoint['epoch']
     
-    def calculate_accuracy(self,Train=True,convert_function=None):
+    def calculate_accuracy(self,Train=True,convert_function=None)->float:
+        """function for calculate accuracy of model
+
+        Args:
+            Train (bool, optional): if True calculate accuracy of train else calculate accuracy of test. Defaults to True.
+            convert_function (_type_, optional): a fuction for convert data to specific format. Defaults to None.
+
+        Returns:
+            float: accuracy of model
+        """
+
         if Train:
             loader=self.train_loader
         else:
@@ -137,7 +222,19 @@ class MainModel():
         else:
             self.test_accuracy.append(accuracy)
         return accuracy
-    def calculate_loss(self,Train=True,convert_function=None ):
+    
+    def calculate_loss(self,Train=True,convert_function=None)->float:
+        """function for calculate loss of model
+
+        Args:
+            Train (bool, optional): if True calculate loss of train else calculate loss of test. Defaults to True.
+            convert_function (_type_, optional): a fuction for convert data to specific format. Defaults to None.
+
+        Returns:
+            float: loss of model
+        """
+
+
         if Train:
             loader=self.train_loader
         else:
@@ -172,7 +269,17 @@ class MainModel():
     def plot_confusion_matrix(self):
         pass
     
-    def plot_loss(self,epochs,train_losses,test_losses,save=None):
+    def plot_loss(self,epochs,train_losses,test_losses,save=None)->None:
+        """function for plot loss of model
+
+        Args:
+            epochs (int): number of epochs
+            train_losses (list): list of train losses
+            test_losses (list): list of test losses
+            save (str, optional): path for save plot. Defaults to None.
+
+       
+        """
         plt.plot(epochs,train_losses,label="train")
         plt.plot(epochs,test_losses,label="test")
         plt.title("Loss Results {0}".format(self.model_name))
@@ -186,7 +293,15 @@ class MainModel():
         
         
     
-    def plot_accuracy(self,epochs,train_accuracy,test_accuracy,save=None):
+    def plot_accuracy(self,epochs:int,train_accuracy:list,test_accuracy:list,save:str=None)->None:
+        """function for plot accuracy of model
+
+        Args:
+            epochs (int): number of epochs
+            train_accuracy (list): list of train accuracy
+            test_accuracy (list): list of test accuracy
+            save (str, optional): path for save plot. Defaults to None.
+        """
         plt.plot(epochs,train_accuracy,label="train")
         plt.plot(epochs,test_accuracy,label="test")
         plt.xlabel("epochs")
