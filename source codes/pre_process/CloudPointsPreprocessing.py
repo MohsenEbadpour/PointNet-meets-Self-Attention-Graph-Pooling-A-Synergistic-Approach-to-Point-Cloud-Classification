@@ -222,7 +222,7 @@ class PointCloudData(Dataset):
         graph_path = str(pcd_path).replace(name+".off",name+"_graph.pickle")
         torch_graph_path = str(pcd_path).replace(name + ".off", name + "_torch_graph.pickle")
 
-        if not (os.path.exists(pointcloud_path) and os.path.exists(graph_feature_path)) or self.force_to_cal:
+        if not(os.path.exists(pointcloud_path) and os.path.exists(graph_feature_path)) or self.force_to_cal:
             with open(pcd_path, 'r') as f:
                 pointcloud = self.__preproc__(f)
                 graph_features,edge_list,graph = get_graph_features(pointcloud)
@@ -255,6 +255,7 @@ class PointCloudData(Dataset):
 
 def prepare_dataset(num,_cut,dataset):
     for i in range(len(dataset)):
+        print("Start ->",i)
         if i%num==_cut:
             sample = dataset[i]
             print("Done! ->",i)
@@ -271,12 +272,13 @@ def handle_threads(num,dataset):
 
     for thread in threads:
         thread.join()
+
 def multi_process(num,dataset):
     procs = []
     for idx in tqdm(range(num)):
         proc = Process(target=prepare_dataset, args=(num,idx,dataset,))
         procs.append(proc)
-    for process in tqdm(proc):
+    for process in tqdm(procs):
         process.start()
     for proc in procs:
         proc.join()
@@ -286,6 +288,6 @@ def multi_process(num,dataset):
 train_dataset = PointCloudData(path_global,force_to_cal=True)
 valid_dataset = PointCloudData(path_global, valid=True, folder='test',force_to_cal=True)
 
-handle_threads(20,train_dataset)
-handle_threads(20,valid_dataset)
+multi_process(20,train_dataset)
+multi_process(20,valid_dataset)
 
