@@ -21,7 +21,7 @@ import pickle
 
 
 
-path_global = Path("../../datasets/pointcloud/raw/modelnet-10/ModelNet10")
+path_global = Path("../../datasets/pointcloud/raw/ModelNet40/")
 
 
 def load_data(path):
@@ -38,9 +38,9 @@ def load_data(path):
     return verts, faces,classes
 
 
-verts, faces, classes = load_data(path_global)
-i,j,k = np.array(faces).T
-x,y,z = np.array(verts).T
+# verts, faces, classes = load_data(path_global)
+# i,j,k = np.array(faces).T
+# x,y,z = np.array(verts).T
 
 
 class PointSampler(object):
@@ -215,7 +215,6 @@ class PointCloudData(Dataset):
         pcd_path = self.files[idx]['pcd_path']
         category = self.files[idx]['category']
         name = str(pcd_path).split("/")[-1].split(".")[0]
-
         pointcloud_path = str(pcd_path).replace(name+".off",name+"_pointcloud.npz")
         graph_feature_path = str(pcd_path).replace(name+".off",name+"_graph_features.npz")
         graph_edge_list_path = str(pcd_path).replace(name+".off",name+"_graph_edge_list.npz")
@@ -238,14 +237,14 @@ class PointCloudData(Dataset):
                 with open(graph_path, 'wb') as handle:
                     pickle.dump(graph, handle)
 
-        else:
+        else:   
                 pointcloud = torch.from_numpy(np.load(pointcloud_path)["arr_0"])
                 graph_features = torch.from_numpy(np.load(graph_feature_path)["arr_0"])
                 edge_list = torch.from_numpy(np.load(graph_edge_list_path)["arr_0"])
 
                 with open(graph_path, 'rb') as handle:
                     graph = pickle.load(handle)
-
+        # print(pointcloud)
         return {'pointcloud': pointcloud,"edge_list":edge_list,"graph":graph, 'category': self.classes[category],
                 'graph_features': graph_features}
 
@@ -284,7 +283,7 @@ def multi_process(num,dataset):
         proc.join()
 
 
-#custom_transforms = transforms.Compose([PointSampler(1024),Normalize(), RandRotation_z(), RandomNoise(),ToTensor()])
+custom_transforms = transforms.Compose([PointSampler(1024),Normalize(), RandRotation_z(), RandomNoise(),ToTensor()])
 train_dataset = PointCloudData(path_global,force_to_cal=True)
 valid_dataset = PointCloudData(path_global, valid=True, folder='test',force_to_cal=True)
 

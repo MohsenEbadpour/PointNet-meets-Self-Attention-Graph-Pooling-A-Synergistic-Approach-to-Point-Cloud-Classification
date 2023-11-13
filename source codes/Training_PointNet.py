@@ -1,48 +1,34 @@
 import torch
-from torch import nn
 from torch import optim
-from torch.nn import functional as F
-from torch.utils.data import Dataset as TDataset, DataLoader as TDataloader
-from torch.utils.data import random_split
 
-import numpy as np
-import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 
 from pathlib import Path
-import plotly.graph_objects as go
 from tqdm import tqdm
-from torch_geometric.data import Dataset as TGDataset, Data as TGData
-from torch_geometric.loader import DataLoader as TGDataLoader
-from torch_geometric.utils.convert import from_networkx
-from torch_geometric import transforms as T
-from torch_geometric.nn import GCNConv,Linear,GATConv,GATv2Conv,SAGEConv, GATConv,ChebConv
-from torch_geometric.nn import GraphConv, TopKPooling
-from torch_geometric.nn import global_mean_pool as gap, global_max_pool as gmp
+from torch_geometric.data import DataLoader
 from pre_process.CloudPointsPreprocessing import *
 from pre_process.PointCloudGraphPreprocessing import *
 
-from base_models.FeatureConcatModel import *
+
 from base_models.PointNet import *
-from base_models.PointNetBasedGraphPoolingModel import *
-from base_models.SelfAttentionGraphPooling import *
 
 from visualization.ReportVisualization import *
 
 
-path_global = Path("ModelNet10")
+path_global = Path("../datasets/pointcloud/raw/modelnet-10/ModelNet10")
 dataset_pointcloud_test = PointCloudData(path_global, valid=True, folder='test',force_to_cal=False)
 dataset_pointcloud_train = PointCloudData(path_global, force_to_cal=False)
 
-dataset_pointcloud_train_loader = TDataloader(dataset=dataset_pointcloud_train, batch_size=32, shuffle=True)
-dataset_pointcloud_test_loader = TDataloader(dataset=dataset_pointcloud_test, batch_size=64)
 
-BatchSize = 32
+dataset_pointcloud_train_loader = DataLoader(dataset=dataset_pointcloud_train, batch_size=32, shuffle=True)
+dataset_pointcloud_test_loader = DataLoader(dataset=dataset_pointcloud_test, batch_size=64)
+
+for data,i in dataset_pointcloud_train_loader:
+    print("hi")
 
 
-
-
+exit
 def TestPerfomancePointNet(model,loader):
     with torch.no_grad():
         model.eval()
@@ -84,7 +70,7 @@ def TrainPointNet(model, train_loader, val_loader,lr=0.01,weight_decay=0.0005, e
     for epoch in range(epochs):
         model.train()
 
-        for i, data in tqdm(enumerate(train_loader, 0)):
+        for i, data in enumerate(train_loader):
             inputs, labels = data['pointcloud'].to(device).float(), data['category'].to(device)
             optimizer.zero_grad()
             outputs, m3x3, m64x64 = model(inputs.transpose(1,2))
