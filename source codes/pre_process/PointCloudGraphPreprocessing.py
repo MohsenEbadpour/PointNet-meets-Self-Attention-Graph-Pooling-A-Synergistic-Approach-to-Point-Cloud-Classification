@@ -123,6 +123,7 @@ def get_graph_features(point_cloud,N=6):
 
 def ConvertBatchToGraph(batch):
     list_of_graphs = []
+    print(batch)
     for index in range(len(batch["edge_list"])):
         edge_index = batch["edge_list"][index].T
         x = batch["graph_features"][index].float()
