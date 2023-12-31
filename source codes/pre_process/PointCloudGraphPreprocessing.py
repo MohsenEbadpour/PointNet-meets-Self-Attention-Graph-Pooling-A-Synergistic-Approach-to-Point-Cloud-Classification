@@ -7,29 +7,15 @@ from torch.utils.data import random_split
 
 
 import numpy as np
-import pandas as pd
-import matplotlib.pyplot as plt
-import seaborn as sns
 
-from pathlib import Path
-import os
-import plotly.graph_objects as go
-import math
-import random
-import threading
-from tqdm import tqdm
-import pickle
 
 import torch_geometric
-from torch_geometric.data import Dataset as TGDataset, Data as TGData
+from torch_geometric.data import  Dataset as TGDataset, Data as TGData
 from torch_geometric.loader import DataLoader as TGDataLoader
-from torchvision import transforms, utils
-from torch_geometric.utils.convert import from_networkx
 from torch_geometric import transforms as T
 from torch_geometric.nn import GCNConv,Linear,GATConv,GATv2Conv,SAGEConv, GATConv,ChebConv
 from torch_geometric.nn import GraphConv, TopKPooling
 from torch_geometric.nn import global_mean_pool as gap, global_max_pool as gmp
-from torch_geometric.nn.pool.topk_pool import topk,filter_adj
 LAYERS = {
     GCNConv:"GCNConv",
     GATConv: "GATConv",
@@ -38,17 +24,10 @@ LAYERS = {
 }
 
 
-from sklearn.neighbors import radius_neighbors_graph, kneighbors_graph
-from sklearn.metrics import confusion_matrix,accuracy_score
-import scipy.spatial.distance
+from sklearn.neighbors import  kneighbors_graph
+
 import networkx as nx
 
-from CloudPointsPreprocessing import * 
-from FeatureConcatModel import * 
-from PointNet import *
-from PointNetBasedGraphPoolingModel import *
-from ReportVisualization import * 
-from SelfAttentionGraphPooling import * 
 
 class PointCloudGraph(TGDataset):
     def __init__(self, point_cloud_dataset ,root="./", transform=None, pre_transform=None, pre_filter=None):
@@ -59,6 +38,13 @@ class PointCloudGraph(TGDataset):
         return len(self.point_cloud_dataset)
 
     def __getitem__(self, idx):
+        sample = self.point_cloud_dataset[idx]
+        edge_index = sample["edge_list"].T
+        x = sample["graph_features"].float()
+        y = sample["category"]
+        tgdata = TGData(x=x,y=y,edge_index=edge_index)
+        return tgdata
+    def get(self, idx: int) :
         sample = self.point_cloud_dataset[idx]
         edge_index = sample["edge_list"].T
         x = sample["graph_features"].float()
@@ -137,6 +123,7 @@ def get_graph_features(point_cloud,N=6):
 
 def ConvertBatchToGraph(batch):
     list_of_graphs = []
+    print(batch)
     for index in range(len(batch["edge_list"])):
         edge_index = batch["edge_list"][index].T
         x = batch["graph_features"][index].float()
@@ -152,3 +139,7 @@ def GetSets(dataset,train=0.99,valid=0.01):
     validation_ratio = int(len(dataset)*valid)
     training_set,validation_set,test_set = random_split(dataset,[train_ratio , validation_ratio,len(dataset) - (train_ratio + validation_ratio)])
     return training_set,validation_set,test_set
+
+
+
+
