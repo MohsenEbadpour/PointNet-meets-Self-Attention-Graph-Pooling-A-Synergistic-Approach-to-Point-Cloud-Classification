@@ -34,9 +34,6 @@ path_global = Path("../datasets/pointcloud/raw/ModelNet40")
 dataset_pointcloud_test = PointCloudData(path_global, valid=True, folder='test',force_to_cal=False)
 dataset_pointcloud_train = PointCloudData(path_global, force_to_cal=False)
 
-for i in range(1):
-    print(dataset_pointcloud_train[i])
-    
 
 
 dataset_graph_test = PointCloudGraph(dataset_pointcloud_test)
@@ -102,7 +99,7 @@ def Train(model,TrainLoader,ValidationLoader,epoch:int,lr=0.01,weight_decay=5e-4
             data = data.to("cpu")
             model = model.to("cpu")
             out = model(data)
-            print(out,data.y)
+            # print(out,data.y)
             loss = F.cross_entropy(out, data.y)
             loss.backward()
             opt.step()
@@ -159,13 +156,14 @@ MAINargs = {
     "Conv":GATConv,
     "heads":6,
     "concat":False,
-    "send_feature":False
+    "send_feature":False,
+    "num_classes":40
 }
 
 
 model = SAGPoolNet(**MAINargs)
 acc,model = Train(model,TrainLoader=TrainLoader,ValidationLoader=ValidationLoader,
-            epoch=80,lr=0.01,weight_decay=0.0005,show=True,name="Self-Attention Graph Pooling-ModelNet10")
+            epoch=60,lr=0.01,weight_decay=0.0005,show=True,name="Self-Attention Graph Pooling-ModelNet40")
 
 
 # def TestPerfomancePointNet(model,loader):

@@ -249,7 +249,7 @@ class PointCloudData(Dataset):
                     graph = pickle.load(handle)
         # print(pointcloud)
         # print("this returned")
-        print(self.classes[category])
+        # print(self.classes[category])
         return {'pointcloud': pointcloud,"edge_list":edge_list,"graph":graph, 'category': self.classes[category],
                 'graph_features': graph_features}
 
