@@ -21,7 +21,11 @@ import pickle
 
 
 
+<<<<<<< HEAD
 path_global = Path("/home/ehsan/Desktop/Mohadeseh/ModelNet10")
+=======
+# path_global = Path("../../datasets/pointcloud/raw/ModelNet40/")
+>>>>>>> MainResearch
 
 
 def load_data(path):
@@ -31,6 +35,8 @@ def load_data(path):
 
     with open(path/"bed/train/bed_0001.off", 'r') as file:
         if 'OFF' != file.readline().strip():
+            for i in range(10000000000):
+                print(file)
             raise('Not a valid OFF header')
         n_verts, n_faces, __ = tuple([int(s) for s in file.readline().strip().split(' ')])
         verts = [[float(s) for s in file.readline().strip().split(' ')] for i_vert in range(n_verts)]
@@ -38,9 +44,9 @@ def load_data(path):
     return verts, faces,classes
 
 
-verts, faces, classes = load_data(path_global)
-i,j,k = np.array(faces).T
-x,y,z = np.array(verts).T
+# verts, faces, classes = load_data(path_global)
+# i,j,k = np.array(faces).T
+# x,y,z = np.array(verts).T
 
 
 class PointSampler(object):
@@ -199,6 +205,7 @@ class PointCloudData(Dataset):
 
     def read_off(self,file):
         if 'OFF' != file.readline().strip():
+            print(file)
             raise('Not a valid OFF header')
         n_verts, n_faces, __ = tuple([int(s) for s in file.readline().strip().split(' ')])
         verts = [[float(s) for s in file.readline().strip().split(' ')] for i_vert in range(n_verts)]
@@ -215,14 +222,13 @@ class PointCloudData(Dataset):
         pcd_path = self.files[idx]['pcd_path']
         category = self.files[idx]['category']
         name = str(pcd_path).split("/")[-1].split(".")[0]
-
         pointcloud_path = str(pcd_path).replace(name+".off",name+"_pointcloud.npz")
         graph_feature_path = str(pcd_path).replace(name+".off",name+"_graph_features.npz")
         graph_edge_list_path = str(pcd_path).replace(name+".off",name+"_graph_edge_list.npz")
         graph_path = str(pcd_path).replace(name+".off",name+"_graph.pickle")
         torch_graph_path = str(pcd_path).replace(name + ".off", name + "_torch_graph.pickle")
 
-        if not (os.path.exists(pointcloud_path) and os.path.exists(graph_feature_path)) or self.force_to_cal:
+        if not(os.path.exists(pointcloud_path) and os.path.exists(graph_feature_path)) and self.force_to_cal:
             with open(pcd_path, 'r') as f:
                 pointcloud = self.__preproc__(f)
                 graph_features,edge_list,graph = get_graph_features(pointcloud)
@@ -238,14 +244,16 @@ class PointCloudData(Dataset):
                 with open(graph_path, 'wb') as handle:
                     pickle.dump(graph, handle)
 
-        else:
+        else:   
                 pointcloud = torch.from_numpy(np.load(pointcloud_path)["arr_0"])
                 graph_features = torch.from_numpy(np.load(graph_feature_path)["arr_0"])
                 edge_list = torch.from_numpy(np.load(graph_edge_list_path)["arr_0"])
 
                 with open(graph_path, 'rb') as handle:
                     graph = pickle.load(handle)
-
+        # print(pointcloud)
+        # print("this returned")
+        # print(self.classes[category])
         return {'pointcloud': pointcloud,"edge_list":edge_list,"graph":graph, 'category': self.classes[category],
                 'graph_features': graph_features}
 
@@ -255,9 +263,10 @@ class PointCloudData(Dataset):
 
 def prepare_dataset(num,_cut,dataset):
     for i in range(len(dataset)):
+        # print("Start ->",i)
         if i%num==_cut:
             sample = dataset[i]
-            print("Done! ->",i)
+            # print("Done! ->",i)
 
 
 def handle_threads(num,dataset):
@@ -271,21 +280,22 @@ def handle_threads(num,dataset):
 
     for thread in threads:
         thread.join()
+
 def multi_process(num,dataset):
     procs = []
     for idx in tqdm(range(num)):
         proc = Process(target=prepare_dataset, args=(num,idx,dataset,))
         procs.append(proc)
-    for process in tqdm(proc):
+    for process in tqdm(procs):
         process.start()
     for proc in procs:
         proc.join()
 
 
-#custom_transforms = transforms.Compose([PointSampler(1024),Normalize(), RandRotation_z(), RandomNoise(),ToTensor()])
-#train_dataset = PointCloudData(path_global,force_to_cal=True)
-#valid_dataset = PointCloudData(path_global, valid=True, folder='test',force_to_cal=True)
+# custom_transforms = transforms.Compose([PointSampler(1024),Normalize(), RandRotation_z(), RandomNoise(),ToTensor()])
+# train_dataset = PointCloudData(path_global,force_to_cal=True)
+# valid_dataset = PointCloudData(path_global, valid=True, folder='test',force_to_cal=True)
 
-#handle_threads(20,train_dataset)
-#handle_threads(20,valid_dataset)
+# multi_process(20,train_dataset)
+# multi_process(20,valid_dataset)
 
