@@ -29,7 +29,12 @@ class Graph(TGDataset):
         return data
 
     def get(self, idx: int):
-        return self.graph[idx]
+        graph = self.graph[idx]
+        data = from_networkx(graph)
+        x,y = get_xy(graph)
+        data.x = x
+        data.y = y
+        return data
 
     def len(self):
         return len(self.graph)

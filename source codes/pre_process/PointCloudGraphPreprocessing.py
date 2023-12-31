@@ -10,7 +10,7 @@ import numpy as np
 
 
 import torch_geometric
-from torch_geometric.data import Dataset as TGDataset, Data as TGData
+from torch_geometric.data import  Dataset as TGDataset, Data as TGData
 from torch_geometric.loader import DataLoader as TGDataLoader
 from torch_geometric import transforms as T
 from torch_geometric.nn import GCNConv,Linear,GATConv,GATv2Conv,SAGEConv, GATConv,ChebConv
@@ -38,6 +38,13 @@ class PointCloudGraph(TGDataset):
         return len(self.point_cloud_dataset)
 
     def __getitem__(self, idx):
+        sample = self.point_cloud_dataset[idx]
+        edge_index = sample["edge_list"].T
+        x = sample["graph_features"].float()
+        y = sample["category"]
+        tgdata = TGData(x=x,y=y,edge_index=edge_index)
+        return tgdata
+    def get(self, idx: int) :
         sample = self.point_cloud_dataset[idx]
         edge_index = sample["edge_list"].T
         x = sample["graph_features"].float()
@@ -116,6 +123,7 @@ def get_graph_features(point_cloud,N=6):
 
 def ConvertBatchToGraph(batch):
     list_of_graphs = []
+    print(batch)
     for index in range(len(batch["edge_list"])):
         edge_index = batch["edge_list"][index].T
         x = batch["graph_features"][index].float()

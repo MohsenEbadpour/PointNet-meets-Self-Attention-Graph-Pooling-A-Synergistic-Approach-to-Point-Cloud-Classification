@@ -3,3 +3,8 @@
 ./dataset
 **/__pycache__
 /checkpoints
+__pycache__/
+*.py[cod]
+*$py.class
+
+*.pyc
