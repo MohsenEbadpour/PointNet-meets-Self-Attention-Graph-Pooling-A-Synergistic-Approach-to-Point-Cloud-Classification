@@ -14,7 +14,7 @@ from pathlib import Path
 import plotly.graph_objects as go
 from tqdm import tqdm
 from torch_geometric.data import Dataset as TGDataset, Data as TGData
-from torch_geometric.loader import DataLoader as TGDataLoader
+from torch_geometric.data.dataloader import DataLoader as TGDataLoader
 from torch_geometric.utils.convert import from_networkx
 from torch_geometric import transforms as T
 from torch_geometric.nn import GCNConv,Linear,GATConv,GATv2Conv,SAGEConv, GATConv,ChebConv
