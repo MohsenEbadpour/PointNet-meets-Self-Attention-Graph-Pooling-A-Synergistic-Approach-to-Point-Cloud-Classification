@@ -21,7 +21,7 @@ import pickle
 
 
 
-path_global = Path("ModelNet10")
+path_global = Path("/home/ehsan/Desktop/Mohadeseh/ModelNet10")
 
 
 def load_data(path):

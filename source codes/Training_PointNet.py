@@ -17,7 +17,7 @@ from torch_geometric.data import Dataset as TGDataset, Data as TGData
 from torch_geometric.data.dataloader import DataLoader as TGDataLoader
 from torch_geometric.utils.convert import from_networkx
 from torch_geometric import transforms as T
-from torch_geometric.nn import GCNConv,Linear,GATConv,GATv2Conv,SAGEConv, GATConv,ChebConv
+from torch_geometric.nn import GCNConv,GATConv,SAGEConv, GATConv,ChebConv
 from torch_geometric.nn import GraphConv, TopKPooling
 from torch_geometric.nn import global_mean_pool as gap, global_max_pool as gmp
 from pre_process.CloudPointsPreprocessing import *
@@ -31,7 +31,7 @@ from base_models.SelfAttentionGraphPooling import *
 from visualization.ReportVisualization import *
 
 
-path_global = Path("ModelNet10")
+path_global = Path("/home/ehsan/Desktop/Mohadeseh/ModelNet10")
 dataset_pointcloud_test = PointCloudData(path_global, valid=True, folder='test',force_to_cal=False)
 dataset_pointcloud_train = PointCloudData(path_global, force_to_cal=False)
 
@@ -156,12 +156,6 @@ MAINargs = {
     "concat":False,
     "send_feature":False
 }
-
-
-model = SAGPoolNet(**MAINargs)
-acc,model = Train(model,TrainLoader=dataset_pointcloud_train_loader,ValidationLoader=dataset_pointcloud_test_loader,
-            epoch=60,lr=0.01,weight_decay=0.0005,show=True,name="Self-Attention Graph Pooling")
-
 
 def TestPerfomancePointNet(model,loader):
     with torch.no_grad():

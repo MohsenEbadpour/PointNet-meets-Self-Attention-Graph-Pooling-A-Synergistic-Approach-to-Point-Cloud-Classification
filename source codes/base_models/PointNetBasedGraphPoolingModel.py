@@ -22,11 +22,11 @@ import pickle
 
 import torch_geometric
 from torch_geometric.data import Dataset as TGDataset, Data as TGData
-from torch_geometric.loader import DataLoader as TGDataLoader
+from torch_geometric.data.dataloader import DataLoader as TGDataLoader
 from torchvision import transforms, utils
 from torch_geometric.utils.convert import from_networkx
 from torch_geometric import transforms as T
-from torch_geometric.nn import GCNConv,Linear,GATConv,GATv2Conv,SAGEConv, GATConv,ChebConv
+from torch_geometric.nn import GCNConv,GATConv,SAGEConv, GATConv,ChebConv
 from torch_geometric.nn import GraphConv, TopKPooling
 from torch_geometric.nn import global_mean_pool as gap, global_max_pool as gmp
 from torch_geometric.nn.pool.topk_pool import topk,filter_adj
@@ -43,8 +43,8 @@ from sklearn.metrics import confusion_matrix,accuracy_score
 import scipy.spatial.distance
 import networkx as nx
 
-from PointNet import *
-from SelfAttentionGraphPooling import * 
+from base_models.PointNet import *
+from base_models.SelfAttentionGraphPooling import * 
 
 
 class PointNetBasedGraphPoolingModel(torch.nn.Module):
