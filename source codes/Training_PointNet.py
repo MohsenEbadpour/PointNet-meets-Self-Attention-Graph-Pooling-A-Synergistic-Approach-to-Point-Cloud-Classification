@@ -39,13 +39,13 @@ dataset_pointcloud_train_loader = TDataloader(dataset=dataset_pointcloud_train, 
 dataset_pointcloud_test_loader = TDataloader(dataset=dataset_pointcloud_test, batch_size=64)
 
 
-dataset_graph_test = PointCloudGraph(dataset_pointcloud_test)
-dataset_graph_train = PointCloudGraph(dataset_pointcloud_train)
-TrainSet,ValidationSet,TestSet = GetSets(dataset_graph_train,0.99,0.01)
-BatchSize = 32
-TrainLoader = TGDataLoader(TrainSet, batch_size=BatchSize, shuffle=True)
-ValidationLoader = TGDataLoader(ValidationSet,batch_size=BatchSize,shuffle=False)
-TestLoader = TGDataLoader(dataset_graph_test,batch_size=BatchSize,shuffle=False)
+# dataset_graph_test = PointCloudGraph(dataset_pointcloud_test)
+# dataset_graph_train = PointCloudGraph(dataset_pointcloud_train)
+# TrainSet,ValidationSet,TestSet = GetSets(dataset_graph_train,0.99,0.01)
+# BatchSize = 32
+# TrainLoader = TGDataLoader(TrainSet, batch_size=BatchSize, shuffle=True)
+# ValidationLoader = TGDataLoader(ValidationSet,batch_size=BatchSize,shuffle=False)
+# TestLoader = TGDataLoader(dataset_graph_test,batch_size=BatchSize,shuffle=False)
 
 
 def TestPerformance(model,loader):
