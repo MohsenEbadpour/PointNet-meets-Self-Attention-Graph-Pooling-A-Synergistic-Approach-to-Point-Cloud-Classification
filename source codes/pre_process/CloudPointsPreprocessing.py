@@ -20,12 +20,7 @@ import pickle
 
 
 
-
-<<<<<<< HEAD
 path_global = Path("/home/ehsan/Desktop/Mohadeseh/ModelNet10")
-=======
-# path_global = Path("../../datasets/pointcloud/raw/ModelNet40/")
->>>>>>> MainResearch
 
 
 def load_data(path):

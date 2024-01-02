@@ -16,7 +16,7 @@ from base_models.PointNet import *
 from visualization.ReportVisualization import *
 
 
-path_global = Path("../datasets/pointcloud/raw/modelnet-10/ModelNet10")
+path_global = Path("/home/ehsan/Desktop/Mohadeseh/ModelNet10")
 dataset_pointcloud_test = PointCloudData(path_global, valid=True, folder='test',force_to_cal=False)
 dataset_pointcloud_train = PointCloudData(path_global, force_to_cal=False)
 
