@@ -246,11 +246,13 @@ class PointCloudData(Dataset):
 
                 with open(graph_path, 'rb') as handle:
                     graph = pickle.load(handle)
-        # print(pointcloud)
-        # print("this returned")
-        # print(self.classes[category])
-        return {'pointcloud': pointcloud,"edge_list":edge_list,"graph":graph, 'category': self.classes[category],
+        
+        # The edge is not a tensor, so dataloader cannot work. As it is not used in the training process, I have deleted it.
+        return {'pointcloud': pointcloud,"edge_list":edge_list, 'category': self.classes[category],
                 'graph_features': graph_features}
+    
+        # return {'pointcloud': pointcloud,"edge_list":edge_list,"graph":graph, 'category': self.classes[category],
+        #         'graph_features': graph_features}
 
         # return {'pointcloud': pointcloud, "edge_list": edge_list, "graph": graph, 'category': self.classes[category],
         #         'graph_features': graph_features, "torch_graph_path": torch_graph_path}

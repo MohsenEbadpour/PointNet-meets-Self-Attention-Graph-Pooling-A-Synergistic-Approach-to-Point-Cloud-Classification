@@ -24,8 +24,8 @@ dataset_pointcloud_train = PointCloudData(path_global, force_to_cal=False)
 dataset_pointcloud_train_loader = DataLoader(dataset=dataset_pointcloud_train, batch_size=32, shuffle=True)
 dataset_pointcloud_test_loader = DataLoader(dataset=dataset_pointcloud_test, batch_size=64)
 
-for data,i in dataset_pointcloud_train_loader:
-    print("hi")
+# for data in dataset_pointcloud_train_loader:
+#     print("hi")
 
 
 exit
