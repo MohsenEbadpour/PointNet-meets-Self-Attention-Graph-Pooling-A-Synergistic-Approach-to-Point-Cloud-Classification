@@ -34,10 +34,11 @@ class MainModel():
     
          number of epochs        
     """
-    def __init__(self,model,dataset_name,name=None)->None:
+    def __init__(self,model,dataset_name,name=None,save_address="")->None:
         self.dataset_name = dataset_name
         self.model_name = name
         self.model=model
+        self.save_address=save_address
         self.optimizer=None
         self.train_loader=None
         self.validation_loader=None
@@ -131,8 +132,8 @@ class MainModel():
            
             print("Epoch: {0} | Train Loss: {1} | Train Acc: {2} | Val Loss: {3} | Val Acc: {4}".format(epoch,train_loss,train_acc,val_loss,val_acc,size_all_mb))
             self.save_checkpoint("../checkpoints/graph/{1}_{2}_{0}.pt".format(epoch,self.dataset_name,self.model_name),epoch)
-        self.plot_loss(range(epochs),self.train_losses,self.test_losses,save="../results/self-attention-graph-pooling/graph_dataset/{0},{1}_{2}loss.png".format(self.dataset_name,self.model_name,epoch+1))
-        self.plot_accuracy(range(epochs),self.train_accuracy,self.test_accuracy,save="../results/self-attention-graph-pooling/graph_dataset/{0},{1}_{2}accuracy.png".format(self.dataset_name,self.model_name,epoch+1))
+        self.plot_loss(range(epochs),self.train_losses,self.test_losses,save="../results/{0}/{1},{2}_{3}loss.png".format(self.save_address,self.dataset_name,self.model_name,epoch+1))
+        self.plot_accuracy(range(epochs),self.train_accuracy,self.test_accuracy,save="../results/{0}/{1},{2}_{3}accuracy.png".format(self.save_address,self.dataset_name,self.model_name,epoch+1))
     
     def get_accuracy(self)-> float:
         """a function for get accuracy of model

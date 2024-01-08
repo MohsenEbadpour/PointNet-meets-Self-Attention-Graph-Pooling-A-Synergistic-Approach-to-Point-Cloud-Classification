@@ -21,7 +21,7 @@ MAINargs = {
 
 model = SAGPoolNet(**MAINargs)
 
-model = MainModel(model,dataset_name=DATASET_NAME,name="SAGPoolNet")
-model.load_data(loader_function=load_graph)
-model.train(convert_function=ConvertBatchToGraph)
+model = MainModel(model,dataset_name=DATASET_NAME,name="SAGPoolNet",save_address="self-attention-graph-pooling/graph_dataset")
+model.load_data(loader_function=load_graph,batch_size=32,train_size=0.8,validation_size=0.2)
+model.train(convert_function=ConvertBatchToGraph,lr=0.01,weight_decay=0.0005,epochs=30)
 
