@@ -24,11 +24,21 @@ dataset_pointcloud_train = PointCloudData(path_global, force_to_cal=False)
 dataset_pointcloud_train_loader = DataLoader(dataset=dataset_pointcloud_train, batch_size=32, shuffle=True)
 dataset_pointcloud_test_loader = DataLoader(dataset=dataset_pointcloud_test, batch_size=64)
 
-# for data in dataset_pointcloud_train_loader:
-#     print("hi")
+
+class EarlyStopping:
+    def __init__(self, tolerance=5, min_delta=0):
+        self.tolerance = tolerance
+        self.min_delta = min_delta
+        self.countr = 0
+        self.early_stop = False
+    
+    def __call__(self, train_loss, validation_loss):
+        if (validation_loss - train_loss) > self.min_delta:
+            counter += 1
+            if counter >= self.tolerance:
+                self.early_stop = True
 
 
-exit
 def TestPerfomancePointNet(model,loader):
     with torch.no_grad():
         model.eval()
@@ -67,11 +77,13 @@ def TrainPointNet(model, train_loader, val_loader,lr=0.01,weight_decay=0.0005, e
 
     loss_val = []
     acc_val = []
+
+    early_stopping = EarlyStopping(tolerance=5, min_delta=10)
     for epoch in range(epochs):
         model.train()
 
         for i, data in enumerate(train_loader):
-            inputs, labels = data['pointcloud'].to(device).float(), data['category'].to(device)
+            inputs, labels = data['graph_features'][:, :, :3].to(device).float(), data['category'].to(device)
             optimizer.zero_grad()
             outputs, m3x3, m64x64 = model(inputs.transpose(1,2))
             loss = PointNetLoss(outputs, labels, m3x3, m64x64)
@@ -89,6 +101,11 @@ def TrainPointNet(model, train_loader, val_loader,lr=0.01,weight_decay=0.0005, e
         loss_train.append(train_loss)
 
         print("Epoch: {0} | Train Loss: {1} | Train Acc: {2} | Val Loss: {3} | Val Acc: {4}".format(epoch,train_loss,train_acc,val_loss,val_acc,size_all_mb))
+
+        early_stopping(train_loss, val_loss)
+        if early_stopping.early_stop:
+            print("We are at epoch:", epoch)
+            break
 
     test_acc = max(acc_val)
 
@@ -118,7 +135,6 @@ def TrainPointNet(model, train_loader, val_loader,lr=0.01,weight_decay=0.0005, e
     plt.clf()
 
     return round(test_acc*100,2),model
-
 
 pointnet = PointNet()
 acc, model = TrainPointNet(pointnet, dataset_pointcloud_train_loader, dataset_pointcloud_test_loader, lr=0.001, weight_decay=0.0005, epochs=60, name="PointNet")
