@@ -143,7 +143,7 @@ def TrainPointNet(model, train_loader, val_loader,lr=0.01,weight_decay=0.0005, e
     return round(test_acc*100,2),model,best_val_loss,best_model,loss_val,loss_train,acc_val,acc_train
 
 pointnet = PointNet()
-learning_rate = 0.01
+learning_rate = 0.1
 weight_decay = 0.00001
 epoch = 200
 acc, model, best_val_loss, best_model, val_loss, train_loss, val_acc, train_acc = TrainPointNet(pointnet, dataset_pointcloud_train_loader, dataset_pointcloud_test_loader, lr=learning_rate, weight_decay=weight_decay, epochs=epoch, name="PointNet")
