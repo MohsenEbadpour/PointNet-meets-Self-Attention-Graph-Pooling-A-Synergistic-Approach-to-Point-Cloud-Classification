@@ -21,7 +21,7 @@ LAYERS = {
 
 
 class Tnet(nn.Module):
-   def __init__(self, k=3,send_feature=False):
+   def __init__(self, k=4,send_feature=False):
       super().__init__()
       self.k=k
       self.send_feature=send_feature
@@ -41,6 +41,7 @@ class Tnet(nn.Module):
 
    def forward(self, input):
       # input.shape == (bs,n,3)
+      print(input.size())
       bs = input.size(0)
       xb = F.relu(self.bn1(self.conv1(input)))
       xb = F.relu(self.bn2(self.conv2(xb)))
@@ -59,7 +60,7 @@ class Tnet(nn.Module):
 
 
 class Transform(nn.Module):
-   def __init__(self,input_dim=3,send_feature=False):
+   def __init__(self,input_dim=4,send_feature=False):
         super().__init__()
         self.send_feature=send_feature
         self.input_transform = Tnet(k=input_dim,send_feature=send_feature)
@@ -96,7 +97,7 @@ class Transform(nn.Module):
         return output, matrix3x3, matrix64x64
 
 class PointNet(nn.Module):
-    def __init__(self, classes = 10,input_dim=3,send_feature=False):
+    def __init__(self, classes = 10,input_dim=4,send_feature=False):
         super().__init__()
         self.send_feature = send_feature
         self.transform = Transform(input_dim=input_dim,send_feature=send_feature)
@@ -123,7 +124,7 @@ class PointNet(nn.Module):
         return self.logsoftmax(output), matrix3x3, matrix64x64
     
     
-def PointNetLoss(outputs, labels, m3x3, m64x64, alpha = 0.0001,defualt_dim=3):
+def PointNetLoss(outputs, labels, m3x3, m64x64, alpha = 0.0001,defualt_dim=4):
     criterion = torch.nn.NLLLoss()
     bs=outputs.size(0)
     id3x3 = torch.eye(defualt_dim, requires_grad=True).repeat(bs,1,1)
