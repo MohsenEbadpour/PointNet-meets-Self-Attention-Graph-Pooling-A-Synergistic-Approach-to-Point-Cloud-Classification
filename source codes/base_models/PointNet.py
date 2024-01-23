@@ -21,7 +21,7 @@ LAYERS = {
 
 
 class Tnet(nn.Module):
-   def __init__(self, k=4,send_feature=False):
+   def __init__(self, k=3,send_feature=False):
       super().__init__()
       self.k=k
       self.send_feature=send_feature
@@ -41,7 +41,6 @@ class Tnet(nn.Module):
 
    def forward(self, input):
       # input.shape == (bs,n,3)
-      print(input.size())
       bs = input.size(0)
       xb = F.relu(self.bn1(self.conv1(input)))
       xb = F.relu(self.bn2(self.conv2(xb)))
@@ -97,7 +96,7 @@ class Transform(nn.Module):
         return output, matrix3x3, matrix64x64
 
 class PointNet(nn.Module):
-    def __init__(self, classes = 10,input_dim=4,send_feature=False):
+    def __init__(self, classes=10,input_dim=4,send_feature=False):
         super().__init__()
         self.send_feature = send_feature
         self.transform = Transform(input_dim=input_dim,send_feature=send_feature)

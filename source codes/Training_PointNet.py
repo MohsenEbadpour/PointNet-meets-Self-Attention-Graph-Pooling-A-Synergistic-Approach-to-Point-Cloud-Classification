@@ -45,7 +45,7 @@ def TestPerfomancePointNet(model,loader):
         correct = 0.
         loss = 0.
         for data in loader:
-            inputs, labels = data['pointcloud'].to("cuda:0").float(), data['category'].to("cuda:0")
+            inputs, labels = data['graph_features'][:, :, :4].to("cuda:0").float(), data['category'].to("cuda:0")
             inputs = inputs.to("cuda")
             labels = labels.to("cuda")
             model = model.to("cuda")
@@ -86,7 +86,6 @@ def TrainPointNet(model, train_loader, val_loader,lr=0.01,weight_decay=0.0005, e
 
         for i, data in enumerate(train_loader):
             inputs, labels = data['graph_features'][:, :, :4].to(device).float(), data['category'].to(device)
-            print(inputs.size())
             optimizer.zero_grad()
             outputs, m3x3, m64x64 = model(inputs.transpose(1,2))
             loss = PointNetLoss(outputs, labels, m3x3, m64x64)
