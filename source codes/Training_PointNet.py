@@ -45,7 +45,7 @@ def TestPerfomancePointNet(model,loader):
         correct = 0.
         loss = 0.
         for data in loader:
-            inputs, labels = data['graph_features'][:, :, :4].to("cuda:0").float(), data['category'].to("cuda:0")
+            inputs, labels = data['graph_features'][:, :, [0, 1, 2, 4]].to("cuda:0").float(), data['category'].to("cuda:0")
             inputs = inputs.to("cuda")
             labels = labels.to("cuda")
             model = model.to("cuda")
@@ -85,7 +85,7 @@ def TrainPointNet(model, train_loader, val_loader,lr=0.01,weight_decay=0.0005, e
         model.train()
 
         for i, data in enumerate(train_loader):
-            inputs, labels = data['graph_features'][:, :, :4].to(device).float(), data['category'].to(device)
+            inputs, labels = data['graph_features'][:, :, [0, 1, 2, 4]].to(device).float(), data['category'].to(device)
             optimizer.zero_grad()
             outputs, m3x3, m64x64 = model(inputs.transpose(1,2))
             loss = PointNetLoss(outputs, labels, m3x3, m64x64)
@@ -136,11 +136,12 @@ def TrainPointNet(model, train_loader, val_loader,lr=0.01,weight_decay=0.0005, e
     plt.legend()
 
     plt.tight_layout()
-    plt.savefig("./results/pointnet/point-cloud/{0}_{1}_{2}_{3}_betweenness.png".format(name, "ModelNet10", lr, weight_decay))
+    plt.savefig("./results/pointnet/point-cloud/{0}_{1}_{2}_{3}_katz_centrality.png".format(name, "ModelNet10", lr, weight_decay))
     plt.show()
     plt.clf()
 
     return round(test_acc*100,2),model,best_val_loss,best_model,loss_val,loss_train,acc_val,acc_train
+
 
 pointnet = PointNet()
 learning_rate = 0.02
@@ -148,26 +149,26 @@ weight_decay = 0.00001
 epoch = 125
 acc, model, best_val_loss, best_model, val_loss, train_loss, val_acc, train_acc = TrainPointNet(pointnet, dataset_pointcloud_train_loader, dataset_pointcloud_test_loader, lr=learning_rate, weight_decay=weight_decay, epochs=epoch, name="PointNet")
 # Save mode weights
-torch.save(model.state_dict(), "../outputs/model_weights/ModelNet10_{0}_{1}_{2}_betweenness".format(epoch, learning_rate, weight_decay))
+torch.save(model.state_dict(), "../outputs/model_weights/ModelNet10_{0}_{1}_{2}_katz_centrality".format(epoch, learning_rate, weight_decay))
 
 # Save best validation loss and the corresponding model weights
-torch.save(best_model.state_dict(), "../outputs/best_records/ModelNet10_{0}_{1}_{2}_betweenness".format(epoch, learning_rate, weight_decay))
+torch.save(best_model.state_dict(), "../outputs/best_records/ModelNet10_{0}_{1}_{2}_katz_centrality".format(epoch, learning_rate, weight_decay))
 
-with open("../outputs/best_records/ModelNet10_{0}_{1}_{2}_betweenness.txt".format(epoch, learning_rate, weight_decay), "w") as f:
+with open("../outputs/best_records/ModelNet10_{0}_{1}_{2}_katz_centrality.txt".format(epoch, learning_rate, weight_decay), "w") as f:
     f.write(str(best_val_loss))
 
-with open("../outputs/accuracy_log/ModelNet10_validation_loss_{0}_{1}_{2}_betweenness.txt".format(epoch, learning_rate, weight_decay), 'w') as f:
+with open("../outputs/accuracy_log/ModelNet10_validation_loss_{0}_{1}_{2}_katz_centrality.txt".format(epoch, learning_rate, weight_decay), 'w') as f:
     for item in val_loss:
         f.write("%s\n" % item)
 
-with open("../outputs/accuracy_log/ModelNet10_train_loss_{0}_{1}_{2}_betweenness.txt".format(epoch, learning_rate, weight_decay), 'w') as f:
+with open("../outputs/accuracy_log/ModelNet10_train_loss_{0}_{1}_{2}_katz_centrality.txt".format(epoch, learning_rate, weight_decay), 'w') as f:
     for item in train_loss:
         f.write("%s\n" % item)
 
-with open("../outputs/accuracy_log/ModelNet10_validation_acc_{0}_{1}_{2}_betweenness.txt".format(epoch, learning_rate, weight_decay), "w") as f:
+with open("../outputs/accuracy_log/ModelNet10_validation_acc_{0}_{1}_{2}_katz_centrality.txt".format(epoch, learning_rate, weight_decay), "w") as f:
     for item in val_acc:
         f.write("%s\n" % item)
 
-with open("../outputs/accuracy_log/ModelNet10_train_acc_{0}_{1}_{2}_betweenness.txt".format(epoch, learning_rate, weight_decay), "w") as f:
+with open("../outputs/accuracy_log/ModelNet10_train_acc_{0}_{1}_{2}_katz_centrality.txt".format(epoch, learning_rate, weight_decay), "w") as f:
     for item in train_acc:
         f.write("%s\n" % item)
