@@ -55,8 +55,8 @@ def TestPerformance(model,loader):
         loss = 0.
         for data in loader:
             # data = ConvertBatchToGraph(data)
-            data = data.to("cpu")
-            model = model.to("cpu")
+            data = data.to("cuda")
+            model = model.to("cuda")
             out = model(data)
             pred = out.max(dim=1)[1]
             correct += pred.eq(data.y).sum().item()
@@ -96,8 +96,8 @@ def Train(model,TrainLoader,ValidationLoader,epoch:int,lr=0.01,weight_decay=5e-4
             # data = ConvertBatchToGraph(data)
             opt.zero_grad()
 
-            data = data.to("cpu")
-            model = model.to("cpu")
+            data = data.to("cuda")
+            model = model.to("cuda")
             out = model(data)
             # print(out,data.y)
             loss = F.cross_entropy(out, data.y)
