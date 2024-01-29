@@ -144,8 +144,8 @@ def TrainPointNet(model, train_loader, val_loader,lr=0.01,weight_decay=0.0005, e
 
 
 pointnet = PointNet()
-learning_rate = 0.2
-weight_decay = 0.00001
+learning_rate = 0.02
+weight_decay = 0.001
 epoch = 200
 acc, model, best_val_loss, best_model, val_loss, train_loss, val_acc, train_acc = TrainPointNet(pointnet, dataset_pointcloud_train_loader, dataset_pointcloud_test_loader, lr=learning_rate, weight_decay=weight_decay, epochs=epoch, name="PointNet")
 # Save mode weights
