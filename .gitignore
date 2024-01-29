@@ -8,7 +8,15 @@
 __pycache__/
 *.py[cod]
 *$py.class
-./source codes/Choupan
-./source codes/Choupan/**
+/venv
+/venv/**
+
+./venv
+/venv
+
+/venv**
+
+*/venv/*
+venv/
 
 *.pyc
