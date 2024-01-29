@@ -1,10 +1,14 @@
 /dataset
 /dataset**
 ./dataset
+./Choupan/**
+
 **/__pycache__
 /checkpoints
 __pycache__/
 *.py[cod]
 *$py.class
+./source codes/Choupan
+./source codes/Choupan/**
 
 *.pyc
