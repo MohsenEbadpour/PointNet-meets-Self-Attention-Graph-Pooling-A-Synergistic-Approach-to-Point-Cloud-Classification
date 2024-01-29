@@ -132,8 +132,9 @@ class MainModel():
            
             print("Epoch: {0} | Train Loss: {1} | Train Acc: {2} | Val Loss: {3} | Val Acc: {4}".format(epoch,train_loss,train_acc,val_loss,val_acc,size_all_mb))
             self.save_checkpoint("../checkpoints/graph/{1}_{2}_{0}.pt".format(epoch,self.dataset_name,self.model_name),epoch)
-        self.plot_loss(range(epochs),self.train_losses,self.test_losses,save="../results/{0}/{1},{2}_{3}loss.png".format(self.save_address,self.dataset_name,self.model_name,epoch+1))
-        self.plot_accuracy(range(epochs),self.train_accuracy,self.test_accuracy,save="../results/{0}/{1},{2}_{3}accuracy.png".format(self.save_address,self.dataset_name,self.model_name,epoch+1))
+        self.plot_loss_accuracy(range(epochs),self.train_losses,self.test_losses,self.train_accuracy,self.test_accuracy,save="../results/{0}/{1},{2}_{3}.png".format(self.save_address,self.dataset_name,self.model_name,epoch+1))
+        # self.plot_loss(range(epochs),self.train_losses,self.test_losses,save="../results/{0}/{1},{2}_{3}loss.png".format(self.save_address,self.dataset_name,self.model_name,epoch+1))
+        # self.plot_accuracy(range(epochs),self.train_accuracy,self.test_accuracy,save="../results/{0}/{1},{2}_{3}accuracy.png".format(self.save_address,self.dataset_name,self.model_name,epoch+1))
     
     def get_accuracy(self)-> float:
         """a function for get accuracy of model
@@ -270,6 +271,29 @@ class MainModel():
     def plot_confusion_matrix(self):
         pass
     
+    def plot_loss_accuracy(self,epochs,train_losses,test_losses,train_accuracy,test_accuracy,save=None):
+        h,w = 1,2
+        plt.rcParams['figure.figsize']= (18,5)
+        plt.subplot(h,w,1)
+        plt.plot(epochs,train_losses,label="train")
+        plt.plot(epochs,test_losses,label="test")
+        plt.title("Loss Results {0}".format(self.model_name.split("-")[0]))
+        plt.xlabel("epochs")
+        plt.ylabel("loss")
+        plt.legend()
+        plt.subplot(h,w,2)
+        plt.plot(epochs,train_accuracy,label="train")
+        plt.plot(epochs,test_accuracy,label="test")
+        plt.xlabel("epochs")
+        plt.ylabel("accuracy")
+        plt.title("Accuracy Results {0} | Test accuracy:{1}%".format(self.model_name,round(max(test_accuracy)*100,2)))
+        plt.legend()
+        
+        if save:
+            plt.savefig(save)
+        plt.show()
+
+
     def plot_loss(self,epochs,train_losses,test_losses,save=None)->None:
         """function for plot loss of model
 
@@ -283,7 +307,7 @@ class MainModel():
         """
         plt.plot(epochs,train_losses,label="train")
         plt.plot(epochs,test_losses,label="test")
-        plt.title("Loss Results {0}".format(self.model_name))
+        plt.title("Loss Results {0}".format(self.model_name.split("-")[0]))
         plt.xlabel("epochs")
         plt.ylabel("loss")
         plt.legend()

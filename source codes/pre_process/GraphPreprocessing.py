@@ -303,16 +303,16 @@ def get_xy(nx_graph):
         load_centrality = node_data.get('load_centrality', 0.0)
         pagerank = node_data.get('pagerank', 0.0)
         # extract labels
-        labels = node_data.get('labels', 0.0)
+        #  should not give lables as x
+        # labels = node_data.get('labels', 0.0)
         # Append the centrality measures to x_list
         x_list.append([betweenness_centrality, katz_centrality, closeness_centrality, eigenvector_centrality,
-                    harmonic_centrality, load_centrality, pagerank, labels[0]])
+                    harmonic_centrality, load_centrality, pagerank])
         # x_list.append([labels])
         
         # Extract class labels (if available) and append to y_list
         class_label = node_data.get('labels', None)
         y_list.append(class_label)
-
     # Convert the lists to PyTorch tensors
     x = torch.Tensor(x_list)
     y = torch.Tensor(y_list)
