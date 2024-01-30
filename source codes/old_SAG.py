@@ -68,6 +68,7 @@ def TestPerformance(model,loader):
 
 def Train(model,TrainLoader,ValidationLoader,epoch:int,lr=0.01,weight_decay=5e-4,show=True,name="Self-Attention Graph Pooling"):
     device = "cuda"
+    # print(weight_decay)
     model = model.to(device)
     opt = optim.Adam(model.parameters(), lr=lr, weight_decay=weight_decay)
     model.train()
@@ -159,7 +160,7 @@ MAINargs = {
     "heads":6,
     "concat":False,
     "send_feature":False,
-    "num_classes":10
+    "num_classes":40
 }
 # WD=0.0005,lr=0.01, "p_dropout":0.25,pooling_ratio":0.25,
 
