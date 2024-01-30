@@ -40,12 +40,14 @@ dataset_graph_test = PointCloudGraph(dataset_pointcloud_test)
 
 dataset_graph_train = PointCloudGraph(dataset_pointcloud_train)
 
+
 TrainSet,ValidationSet,TestSet = GetSets(dataset_graph_train,0.99,0.01)
 
 BatchSize = 32
 TrainLoader = DataLoader(TrainSet, batch_size=BatchSize, shuffle=True)
 ValidationLoader = DataLoader(ValidationSet,batch_size=BatchSize,shuffle=False)
 TestLoader = DataLoader(dataset_graph_test,batch_size=BatchSize,shuffle=False)
+
 
 
 def TestPerformance(model,loader):
@@ -96,8 +98,8 @@ def Train(model,TrainLoader,ValidationLoader,epoch:int,lr=0.01,weight_decay=5e-4
             # data = ConvertBatchToGraph(data)
             opt.zero_grad()
 
-            data = data.to("cuda")
-            model = model.to("cuda")
+            data = data.to("cpu")
+            model = model.to("cpu")
             out = model(data)
             # print(out,data.y)
             loss = F.cross_entropy(out, data.y)
@@ -147,7 +149,7 @@ def Train(model,TrainLoader,ValidationLoader,epoch:int,lr=0.01,weight_decay=5e-4
 
 
 MAINargs = {
-    "SAGPoolNet_dataset_features":10,
+    "SAGPoolNet_dataset_features":4,
     "out_channels":1,
     "is_hierarchical":True,
     "use_w_for_concat":True,
@@ -161,9 +163,17 @@ MAINargs = {
 }
 # WD=0.0005,lr=0.01, "p_dropout":0.25,pooling_ratio":0.25,
 
+#beetween
+#KATz
+#closeness
+#eigen
+#harmonic
+#load
+#page
+
 model = SAGPoolNet(**MAINargs)
 acc,model = Train(model,TrainLoader=TrainLoader,ValidationLoader=ValidationLoader,
-            epoch=100,lr=0.01,weight_decay=0.0005,show=True,name="Self-Attention Graph Pooling-ModelNet40-100epoch")
+            epoch=100,lr=0.01,weight_decay=0.0005,show=True,name="Self-Attention Graph Pooling-ModelNet40-feauture = beetween")
 
 
 # def TestPerfomancePointNet(model,loader):
