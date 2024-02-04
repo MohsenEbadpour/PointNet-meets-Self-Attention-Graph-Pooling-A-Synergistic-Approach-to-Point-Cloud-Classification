@@ -40,15 +40,7 @@ class PointCloudGraph(TGDataset):
     def __getitem__(self, idx):
         sample = self.point_cloud_dataset[idx]
         edge_index = sample["edge_list"].T
-        new_fetures=[]
-        for i in sample["graph_features"]:
-            y=i.numpy()
-            z=y[:3]
-            z=np.append(z,y[3])
-            new_fetures.append(z)
-        new_fetures = torch.from_numpy(np.array(new_fetures))
-        x=new_fetures
-        # x = sample["graph_features"].float()
+        x = sample["graph_features"].float()
         y = sample["category"]
         tgdata = TGData(x=x,y=y,edge_index=edge_index)
         return tgdata
