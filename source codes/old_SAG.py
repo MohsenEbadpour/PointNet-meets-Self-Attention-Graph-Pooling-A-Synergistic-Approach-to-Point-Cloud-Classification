@@ -147,11 +147,11 @@ def Train(model,TrainLoader,ValidationLoader,epoch:int,lr=0.01,weight_decay=5e-4
 
         acc_train.append(train_acc)
         loss_train.append(train_loss)
-        save_checkpoint("../checkpoints/pointcloud/{1}_{0}.pt".format(ite,name),ite)
+        save_checkpoint(path= "../checkpoints/pointcloud/{1}_{0}.pt".format(ite,name),epoch=ite,model=model,optimizer=opt)
 
 
         print("Epoch: {0} | Train Loss: {1} | Train Acc: {2} | Val Loss: {3} | Val Acc: {4}".format(ite,train_loss,train_acc,val_loss,val_acc,size_all_mb))
-    save_checkpoint("../checkpoints/pointcloud/{1}_{0}.pt".format(epoch,name),epoch)
+    save_checkpoint(path="../checkpoints/pointcloud/{1}_{0}.pt".format(epoch,name),epoch=epoch,model=model,optimizer=opt)
     test_acc = max(acc_val)
     if show:
         sns.set_style("whitegrid")
