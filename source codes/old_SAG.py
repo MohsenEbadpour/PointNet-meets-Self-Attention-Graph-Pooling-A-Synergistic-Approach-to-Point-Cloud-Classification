@@ -30,7 +30,7 @@ from base_models.SelfAttentionGraphPooling import *
 from visualization.ReportVisualization import *
 
 
-path_global = Path("../datasets/pointcloud/raw/ModelNet10")
+path_global = Path("../datasets/pointcloud/raw/ModelNet40")
 
 dataset_pointcloud_test = PointCloudData(path_global, valid=True, folder='test',force_to_cal=False)
 dataset_pointcloud_train = PointCloudData(path_global, force_to_cal=False)
@@ -44,7 +44,7 @@ dataset_graph_train = PointCloudGraph(dataset_pointcloud_train)
 
 TrainSet,ValidationSet,TestSet = GetSets(dataset_graph_train,0.99,0.01)
 
-BatchSize = 64
+BatchSize = 32
 TrainLoader = DataLoader(TrainSet, batch_size=BatchSize, shuffle=True)
 ValidationLoader = DataLoader(ValidationSet,batch_size=BatchSize,shuffle=False)
 TestLoader = DataLoader(dataset_graph_test,batch_size=BatchSize,shuffle=False)
@@ -52,7 +52,7 @@ TestLoader = DataLoader(dataset_graph_test,batch_size=BatchSize,shuffle=False)
 
         
 
-def save_checkpoint(self,path:str,epoch:int,model,optimizer)->None:
+def save_checkpoint(path:str,epoch:int,model,optimizer)->None:
     """function for save checkpoint of model
 
     Args:
@@ -64,7 +64,7 @@ def save_checkpoint(self,path:str,epoch:int,model,optimizer)->None:
         'model_state_dict': model.state_dict(),
         'optimizer_state_dict': optimizer.state_dict(),
         }, path)
-def load_checkpoint(self,path:str,model,optimizer)->None:
+def load_checkpoint(path:str,model,optimizer)->None:
     """function for load checkpoint of model
 
     Args:
@@ -147,7 +147,7 @@ def Train(model,TrainLoader,ValidationLoader,epoch:int,lr=0.01,weight_decay=5e-4
 
         acc_train.append(train_acc)
         loss_train.append(train_loss)
-        save_checkpoint(path= "../checkpoints/pointcloud/{1}_{0}.pt".format(ite,name),epoch=ite,model=model,optimizer=opt)
+        # save_checkpoint(path= "../checkpoints/pointcloud/{1}_{0}.pt".format(ite,name),epoch=ite,model=model,optimizer=opt)
 
 
         print("Epoch: {0} | Train Loss: {1} | Train Acc: {2} | Val Loss: {3} | Val Acc: {4}".format(ite,train_loss,train_acc,val_loss,val_acc,size_all_mb))
@@ -192,7 +192,7 @@ MAINargs = {
     "heads":6,
     "concat":False,
     "send_feature":False,
-    "num_classes":10
+    "num_classes":40
 }
 # WD=0.0005,lr=0.01, "p_dropout":0.25,pooling_ratio":0.25,
 
@@ -206,7 +206,7 @@ MAINargs = {
 
 model = SAGPoolNet(**MAINargs)
 acc,model = Train(model,TrainLoader=TrainLoader,ValidationLoader=ValidationLoader,
-            epoch=100,lr=0.01,weight_decay=0.0003,show=True,name="Self-Attention Graph Pooling-ModelNet10-adamw")
+            epoch=100,lr=0.01,weight_decay=0.0002,show=True,name="Self-Attention Graph Pooling-ModelNet40-100epoch-wd=")
 
 
 # def TestPerfomancePointNet(model,loader):
