@@ -135,7 +135,7 @@ class MainModel():
         self.plot_loss_accuracy(range(epochs),self.train_losses,self.test_losses,self.train_accuracy,self.test_accuracy,save="../results/{0}/{1},{2}_{3}.png".format(self.save_address,self.dataset_name,self.model_name,epoch+1))
         # self.plot_loss(range(epochs),self.train_losses,self.test_losses,save="../results/{0}/{1},{2}_{3}loss.png".format(self.save_address,self.dataset_name,self.model_name,epoch+1))
         # self.plot_accuracy(range(epochs),self.train_accuracy,self.test_accuracy,save="../results/{0}/{1},{2}_{3}accuracy.png".format(self.save_address,self.dataset_name,self.model_name,epoch+1))
-    
+        self.save_weights("../weights/graph/{1}_{2}_{0}.pt".format(epoch,self.dataset_name,self.model_name))
     def get_accuracy(self)-> float:
         """a function for get accuracy of model
 
