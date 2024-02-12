@@ -30,7 +30,7 @@ from base_models.SelfAttentionGraphPooling import *
 from visualization.ReportVisualization import *
 
 
-path_global = Path("../datasets/pointcloud/raw/ModelNet40")
+path_global = Path("../datasets/pointcloud/raw/ModelNet10")
 
 dataset_pointcloud_test = PointCloudData(path_global, valid=True, folder='test',force_to_cal=False)
 dataset_pointcloud_train = PointCloudData(path_global, force_to_cal=False)
@@ -44,7 +44,7 @@ dataset_graph_train = PointCloudGraph(dataset_pointcloud_train)
 
 TrainSet,ValidationSet,TestSet = GetSets(dataset_graph_train,0.99,0.01)
 
-BatchSize = 32
+BatchSize = 64
 TrainLoader = DataLoader(TrainSet, batch_size=BatchSize, shuffle=True)
 ValidationLoader = DataLoader(ValidationSet,batch_size=BatchSize,shuffle=False)
 TestLoader = DataLoader(dataset_graph_test,batch_size=BatchSize,shuffle=False)
@@ -196,7 +196,7 @@ MAINargs = {
     "heads":6,
     "concat":False,
     "send_feature":False,
-    "num_classes":40
+    "num_classes":10
 }
 # WD=0.0005,lr=0.01, "p_dropout":0.25,pooling_ratio":0.25,
 
@@ -210,7 +210,7 @@ MAINargs = {
 
 model = SAGPoolNet(**MAINargs)
 acc,model = Train(model,TrainLoader=TrainLoader,ValidationLoader=ValidationLoader,TestLoader=TestLoader,
-            epoch=100,lr=0.01,weight_decay=0.0002,show=True,name="Self-Attention Graph Pooling-ModelNet40-100epoch-wd=")
+            epoch=100,lr=0.01,weight_decay=0.0002,show=True,name="Self-Attention Graph Pooling-ModelNet10-100epoch-test")
 
 
 # def TestPerfomancePointNet(model,loader):
