@@ -75,7 +75,7 @@ def load_checkpoint(path:str,model,optimizer)->None:
     checkpoint = torch.load(path)
     model.load_state_dict(checkpoint['model_state_dict'])
     optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
-    
+    return model, optimizer
 
 
 
@@ -100,8 +100,11 @@ def TestPerformance(model,loader):
 def Train(model,TrainLoader,ValidationLoader,TestLoader,epoch:int,lr=0.01,weight_decay=5e-4,show=True,name="Self-Attention Graph Pooling"):
     device = "cuda"
     # print(weight_decay)
+
+
     model = model.to(device)
     opt = optim.AdamW(model.parameters(), lr=lr, weight_decay=weight_decay)
+    model,opt = load_checkpoint("../checkpoints/pointcloud/{1}_{0}.pt",model,opt)
     model.train()
     loss_train = []
     acc_train = []
@@ -209,6 +212,7 @@ MAINargs = {
 #page
 
 model = SAGPoolNet(**MAINargs)
+
 acc,model = Train(model,TrainLoader=TrainLoader,ValidationLoader=ValidationLoader,TestLoader=TestLoader,
             epoch=100,lr=0.01,weight_decay=0.0002,show=True,name="Self-Attention Graph Pooling-ModelNet10-100epoch-test")
 
