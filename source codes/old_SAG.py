@@ -30,7 +30,7 @@ from base_models.SelfAttentionGraphPooling import *
 from visualization.ReportVisualization import *
 
 
-path_global = Path("../datasets/pointcloud/raw/ModelNet40")
+path_global = Path("../datasets/pointcloud/raw/ModelNet10")
 
 dataset_pointcloud_test = PointCloudData(path_global, valid=True, folder='test',force_to_cal=False)
 dataset_pointcloud_train = PointCloudData(path_global, force_to_cal=False)
@@ -42,9 +42,10 @@ dataset_graph_test = PointCloudGraph(dataset_pointcloud_test)
 dataset_graph_train = PointCloudGraph(dataset_pointcloud_train)
 
 
-TrainSet,ValidationSet,TestSet = GetSets(dataset_graph_train,0.99,0.01)
+TrainSet,ValidationSet,TestSet = GetSets(dataset_graph_train,train=1,valid=0)
 
-BatchSize = 32
+BatchSize = 64
+
 TrainLoader = DataLoader(TrainSet, batch_size=BatchSize, shuffle=True)
 ValidationLoader = DataLoader(ValidationSet,batch_size=BatchSize,shuffle=False)
 TestLoader = DataLoader(dataset_graph_test,batch_size=BatchSize,shuffle=False)
@@ -88,8 +89,8 @@ def TestPerformance(model,loader):
         loss = 0.
         for data in loader:
             # data = ConvertBatchToGraph(data)
-            data = data.to("cuda")
-            model = model.to("cuda")
+            data = data.to("cpu")
+            model = model.to("cpu")
             out = model(data)
             pred = out.max(dim=1)[1]
             correct += pred.eq(data.y).sum().item()
@@ -98,7 +99,7 @@ def TestPerformance(model,loader):
 
 
 def Train(model,TrainLoader,ValidationLoader,epoch:int,lr=0.01,weight_decay=5e-4,show=True,name="Self-Attention Graph Pooling"):
-    device = "cuda"
+    device = "cpu"
     # print(weight_decay)
     model = model.to(device)
     opt = optim.AdamW(model.parameters(), lr=lr, weight_decay=weight_decay)
@@ -126,6 +127,7 @@ def Train(model,TrainLoader,ValidationLoader,epoch:int,lr=0.01,weight_decay=5e-4
     for ite in range(epoch):
         model.train()
         for i, data in enumerate(TrainLoader):
+
             # print(data)
             # data = ConvertBatchToGraph(data)
             opt.zero_grad()
@@ -147,7 +149,7 @@ def Train(model,TrainLoader,ValidationLoader,epoch:int,lr=0.01,weight_decay=5e-4
 
         acc_train.append(train_acc)
         loss_train.append(train_loss)
-        # save_checkpoint(path= "../checkpoints/pointcloud/{1}_{0}.pt".format(ite,name),epoch=ite,model=model,optimizer=opt)
+        save_checkpoint(path= "../checkpoints/pointcloud/{1}_{0}.pt".format(ite,name),epoch=ite,model=model,optimizer=opt)
 
 
         print("Epoch: {0} | Train Loss: {1} | Train Acc: {2} | Val Loss: {3} | Val Acc: {4}".format(ite,train_loss,train_acc,val_loss,val_acc,size_all_mb))
@@ -182,7 +184,7 @@ def Train(model,TrainLoader,ValidationLoader,epoch:int,lr=0.01,weight_decay=5e-4
 
 
 MAINargs = {
-    "SAGPoolNet_dataset_features":10,
+    "SAGPoolNet_dataset_features":4,
     "out_channels":1,
     "is_hierarchical":True,
     "use_w_for_concat":True,
@@ -192,7 +194,7 @@ MAINargs = {
     "heads":6,
     "concat":False,
     "send_feature":False,
-    "num_classes":40
+    "num_classes":10
 }
 # WD=0.0005,lr=0.01, "p_dropout":0.25,pooling_ratio":0.25,
 
@@ -205,8 +207,8 @@ MAINargs = {
 #page
 
 model = SAGPoolNet(**MAINargs)
-acc,model = Train(model,TrainLoader=TrainLoader,ValidationLoader=ValidationLoader,
-            epoch=100,lr=0.01,weight_decay=0.0002,show=True,name="Self-Attention Graph Pooling-ModelNet40-100epoch-wd=")
+acc,model = Train(model,TrainLoader=TrainLoader,ValidationLoader=TestLoader,
+            epoch=100,lr=0.01,weight_decay=0.0005,show=True,name="Self-Attention Graph Pooling-ModelNet10-100epoch-closeness")
 
 
 # def TestPerfomancePointNet(model,loader):

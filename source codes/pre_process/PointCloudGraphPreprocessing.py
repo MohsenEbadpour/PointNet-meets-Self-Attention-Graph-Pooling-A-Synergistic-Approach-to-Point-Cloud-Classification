@@ -41,6 +41,9 @@ class PointCloudGraph(TGDataset):
         sample = self.point_cloud_dataset[idx]
         edge_index = sample["edge_list"].T
         x = sample["graph_features"].float()
+        # print(x)
+        # x= x[:3]
+        # x.append(x[5])
         y = sample["category"]
         tgdata = TGData(x=x,y=y,edge_index=edge_index)
         return tgdata
