@@ -41,9 +41,6 @@ class PointCloudGraph(TGDataset):
         sample = self.point_cloud_dataset[idx]
         edge_index = sample["edge_list"].T
         x = sample["graph_features"].float()
-        # print(x)
-        # x= x[:3]
-        # x.append(x[5])
         y = sample["category"]
         tgdata = TGData(x=x,y=y,edge_index=edge_index)
         return tgdata
@@ -138,6 +135,8 @@ def ConvertBatchToGraph(batch):
 
 
 def GetSets(dataset,train=0.99,valid=0.01):
+    torch.manual_seed(42)
+    np.random.seed(42)
     train_ratio = int(len(dataset)*train)
     validation_ratio = int(len(dataset)*valid)
     training_set,validation_set,test_set = random_split(dataset,[train_ratio , validation_ratio,len(dataset) - (train_ratio + validation_ratio)])

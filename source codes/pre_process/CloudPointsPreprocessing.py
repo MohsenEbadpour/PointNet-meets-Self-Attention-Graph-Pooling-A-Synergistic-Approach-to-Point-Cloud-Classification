@@ -180,6 +180,8 @@ def get_graph_features(point_cloud,N=6):
 
 class PointCloudData(Dataset):
     def __init__(self, root_dir, valid=False, folder="train", transform=DefaultTransforms(),force_to_cal = False):
+        torch.manual_seed(42)
+        np.random.seed(42)
         self.root_dir = root_dir
         folders = [dir for dir in sorted(os.listdir(root_dir)) if os.path.isdir(root_dir/dir)]
         self.classes = {folder: i for i, folder in enumerate(folders)}
@@ -245,8 +247,9 @@ class PointCloudData(Dataset):
                 temp = np.load(graph_feature_path)["arr_0"]
                 empty = []
                 for i in temp:
-                    i = np.append(i[:3],i[5])
+                    i = np.append(i[:3])
                     empty.append(i)
+                print(empty)
                 graph_features = torch.from_numpy(np.array(empty))
                 edge_list = torch.from_numpy(np.load(graph_edge_list_path)["arr_0"])
 
