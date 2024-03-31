@@ -158,12 +158,12 @@ def Train(model,TrainLoader,ValidationLoader,epochs:int,lr=0.01,weight_decay=5e-
 
     save_checkpoint(path="../checkpoints/pointcloud/{0}.pt".format(name),epoch=epochs,model=model,optimizer=opt)
     save_checkpoint(path="../checkpoints/pointcloud/{0}-bestModel.pt".format(name),epoch=epochs,model=best_model,optimizer=opt)
-    SaveToFile(path="../outputs/pointcloud/{0}-train-acc.txt",array=train_acc)
-    SaveToFile(path="../outputs/pointcloud/{0}-train-lost.txt",array=train_loss)
-    SaveToFile(path="../outputs/pointcloud/{0}-val-acc.txt",array=val_acc)
-    SaveToFile(path="../outputs/pointcloud/{0}-val-loss.txt",array=val_loss)
-    SaveToFile(path="../outputs/pointcloud/{0}-test-acc.txt",array=test_acc)
-    SaveToFile(path="../outputs/pointcloud/{0}-testloss.txt",array=test_loss)
+    SaveToFile(path="../outputs/pointcloud/{0}-train-acc.txt",array=acc_train)
+    SaveToFile(path="../outputs/pointcloud/{0}-train-lost.txt",array=loss_train)
+    SaveToFile(path="../outputs/pointcloud/{0}-val-acc.txt",array=acc_val)
+    SaveToFile(path="../outputs/pointcloud/{0}-val-loss.txt",array=loss_val)
+    SaveToFile(path="../outputs/pointcloud/{0}-test-acc.txt",array=acc_test)
+    SaveToFile(path="../outputs/pointcloud/{0}-testloss.txt",array=loss_test)
 
 
     test_acc = max(acc_test)
