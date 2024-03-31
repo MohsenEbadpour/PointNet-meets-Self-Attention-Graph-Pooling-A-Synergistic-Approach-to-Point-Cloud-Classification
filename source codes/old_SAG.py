@@ -93,7 +93,7 @@ def TestPerformance(model,loader):
     return correct / len(loader.dataset),loss / len(loader.dataset)
 
 
-def Train(model,TrainLoader,ValidationLoader,epoch:int,lr=0.01,weight_decay=5e-4,show=True,name="Self-Attention Graph Pooling"):
+def Train(model,TrainLoader,ValidationLoader,epoch:int,lr=0.01,weight_decay=5e-4,show=True,name="Self-Attention Graph Pooling",file_name ="Self-Attention Graph Pooling"):
     device = "cuda"
     model = model.to(device)
     opt = optim.Adam(model.parameters(), lr=lr, weight_decay=weight_decay)
@@ -104,11 +104,6 @@ def Train(model,TrainLoader,ValidationLoader,epoch:int,lr=0.01,weight_decay=5e-4
 
     loss_val = []
     acc_val = []
-
-    acc_test = []
-
-    min_loss = 1e10
-    patience = 0
     param_size = 0
     for param in model.parameters():
         param_size += param.nelement() * param.element_size()
@@ -167,7 +162,7 @@ def Train(model,TrainLoader,ValidationLoader,epoch:int,lr=0.01,weight_decay=5e-4
         plt.legend()
 
         plt.tight_layout()
-        plt.savefig("./{0}.png".format(name))
+        plt.savefig("./{0}.png".format(file_name))
         plt.show()
         plt.clf()
 
@@ -202,5 +197,5 @@ learing_rate =0.01
 
 model = SAGPoolNet(**MAINargs)
 acc,model = Train(model,TrainLoader=TrainLoader,ValidationLoader=ValidationLoader,
-            epoch=epoch,lr=learing_rate,weight_decay=wd,show=True,name="Self-Attention Graph Pooling-ModelNet10")
+            epoch=epoch,lr=learing_rate,weight_decay=wd,show=True,name="Self-Attention Graph Pooling-ModelNet10",file_name="Self-Attention Graph Pooling-ModelNet10")
 
