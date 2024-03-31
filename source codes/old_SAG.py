@@ -43,7 +43,6 @@ dataset_graph_train = PointCloudGraph(dataset_pointcloud_train)
 
 TrainSet,ValidationSet,TestSet = GetSets(dataset_graph_train,train=0.93,valid=0.07)
 # 250-300
-print(len(ValidationSet))
 BatchSize = 64
 
 TrainLoader = DataLoader(TrainSet, batch_size=BatchSize, shuffle=True)
@@ -97,7 +96,7 @@ def SaveToFile(path,array):
             file.write(item)
 
 
-def Train(model,TrainLoader,ValidationLoader,epoch:int,lr=0.01,weight_decay=5e-4,show=True,name="Self-Attention Graph Pooling",file_name ="Self-Attention Graph Pooling"):
+def Train(model,TrainLoader,ValidationLoader,epochs:int,lr=0.01,weight_decay=5e-4,show=True,name="Self-Attention Graph Pooling",file_name ="Self-Attention Graph Pooling"):
     device = "cuda"
     model = model.to(device)
     opt = optim.Adam(model.parameters(), lr=lr, weight_decay=weight_decay)
@@ -121,7 +120,7 @@ def Train(model,TrainLoader,ValidationLoader,epoch:int,lr=0.01,weight_decay=5e-4
     size_all_mb = round(size_all_mb,3)
     print("Model Size: {0} MB".format(size_all_mb))
 
-    for ite in range(epoch):
+    for epoch in range(epochs):
         model.train()
         for i, data in enumerate(TrainLoader):
             opt.zero_grad()
@@ -148,7 +147,7 @@ def Train(model,TrainLoader,ValidationLoader,epoch:int,lr=0.01,weight_decay=5e-4
         # save_checkpoint(path= "../checkpoints/pointcloud/{1}_{0}.pt".format(ite,name),epoch=ite,model=model,optimizer=opt)
 
 
-        print("Epoch: {0} | Train Loss: {1} | Train Acc: {2} | Val Loss: {3} | Val Acc: {4}".format(ite,train_loss,train_acc,val_loss,val_acc,size_all_mb))
+        print("Epoch: {0} | Train Loss: {1} | Train Acc: {2} | Val Loss: {3} | Val Acc: {4}".format(epoch,train_loss,train_acc,val_loss,val_acc,size_all_mb))
         if epoch == 0:
             best_val_loss = val_loss
             best_model = model
@@ -157,8 +156,8 @@ def Train(model,TrainLoader,ValidationLoader,epoch:int,lr=0.01,weight_decay=5e-4
                 best_val_loss = val_loss
                 best_model = model
 
-    save_checkpoint(path="../checkpoints/pointcloud/{0}.pt".format(name),epoch=epoch,model=model,optimizer=opt)
-    save_checkpoint(path="../checkpoints/pointcloud/{0}-bestModel.pt".format(name),epoch=epoch,model=best_model,optimizer=opt)
+    save_checkpoint(path="../checkpoints/pointcloud/{0}.pt".format(name),epoch=epochs,model=model,optimizer=opt)
+    save_checkpoint(path="../checkpoints/pointcloud/{0}-bestModel.pt".format(name),epoch=epochs,model=best_model,optimizer=opt)
     SaveToFile(path="../outputs/pointcloud/{0}-train-acc.txt",array=train_acc)
     SaveToFile(path="../outputs/pointcloud/{0}-train-lost.txt",array=train_loss)
     SaveToFile(path="../outputs/pointcloud/{0}-val-acc.txt",array=val_acc)
@@ -219,13 +218,13 @@ MAINargs = {
 #page
 
 wd = 0.0005
-epoch = 200
+epochs = 200
 learing_rate =0.02
 
 model = SAGPoolNet(**MAINargs)
 acc, model= Train(model,
            TrainLoader=TrainLoader,ValidationLoader=ValidationLoader,
-            epoch=epoch,lr=learing_rate,weight_decay=wd,show=True,name="Self-Attention Graph Pooling-ModelNet10",
+            epochs=epochs,lr=learing_rate,weight_decay=wd,show=True,name="Self-Attention Graph Pooling-ModelNet10",
             file_name="Self-Attention Graph Pooling-ModelNet10-3f")
 
 
