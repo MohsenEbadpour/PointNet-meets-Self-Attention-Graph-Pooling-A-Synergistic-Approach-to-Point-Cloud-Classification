@@ -193,9 +193,10 @@ MAINargs = {
 
 wd = 0.0005
 epoch = 200
-learing_rate =0.01
+learing_rate =0.005
 
 model = SAGPoolNet(**MAINargs)
 acc,model = Train(model,TrainLoader=TrainLoader,ValidationLoader=ValidationLoader,
-            epoch=epoch,lr=learing_rate,weight_decay=wd,show=True,name="Self-Attention Graph Pooling-ModelNet10",file_name="Self-Attention Graph Pooling-ModelNet10")
+            epoch=epoch,lr=learing_rate,weight_decay=wd,show=True,name="Self-Attention Graph Pooling-ModelNet10",
+            file_name="Self-Attention Graph Pooling-ModelNet10--lr-0.005")
 
