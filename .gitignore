@@ -4,7 +4,7 @@
 ./Choupan/**
 
 **/__pycache__
-/checkpoints
+# /checkpoints
 __pycache__/
 *.py[cod]
 *$py.class

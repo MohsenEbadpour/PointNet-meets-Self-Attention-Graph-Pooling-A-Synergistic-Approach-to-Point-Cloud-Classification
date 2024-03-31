@@ -91,6 +91,10 @@ def TestPerformance(model,loader):
             correct += pred.eq(data.y).sum().item()
             loss += F.cross_entropy(out,data.y).item()
     return correct / len(loader.dataset),loss / len(loader.dataset)
+def SaveToFile(path,array):
+    with open(path,"w") as file:
+        for item in array:
+            file.write(item)
 
 
 def Train(model,TrainLoader,ValidationLoader,epoch:int,lr=0.01,weight_decay=5e-4,show=True,name="Self-Attention Graph Pooling",file_name ="Self-Attention Graph Pooling"):
@@ -101,9 +105,12 @@ def Train(model,TrainLoader,ValidationLoader,epoch:int,lr=0.01,weight_decay=5e-4
     model.train()
     loss_train = []
     acc_train = []
-
     loss_val = []
     acc_val = []
+    loss_test= []
+    acc_test =[]
+    best_val_loss = 0
+    best_model = None
     param_size = 0
     for param in model.parameters():
         param_size += param.nelement() * param.element_size()
@@ -129,7 +136,10 @@ def Train(model,TrainLoader,ValidationLoader,epoch:int,lr=0.01,weight_decay=5e-4
         scheduler.step()
         val_acc,val_loss = TestPerformance(model,ValidationLoader)
         train_acc,train_loss = TestPerformance(model,TrainLoader)
+        test_accu ,test_loss = TestPerformance(model,TestLoader)
 
+        acc_test.append(test_accu)
+        loss_test.append(test_loss)
         acc_val.append(val_acc)
         loss_val.append(val_loss)
         acc_train.append(train_acc)
@@ -139,15 +149,32 @@ def Train(model,TrainLoader,ValidationLoader,epoch:int,lr=0.01,weight_decay=5e-4
 
 
         print("Epoch: {0} | Train Loss: {1} | Train Acc: {2} | Val Loss: {3} | Val Acc: {4}".format(ite,train_loss,train_acc,val_loss,val_acc,size_all_mb))
-    # save_checkpoint(path="../checkpoints/pointcloud/{1}_{0}.pt".format(epoch,name),epoch=epoch,model=model,optimizer=opt)
-    test_acc = max(acc_val)
+        if epoch == 0:
+            best_val_loss = val_loss
+            best_model = model
+        else:
+            if val_loss <= best_val_loss:
+                best_val_loss = val_loss
+                best_model = model
+
+    save_checkpoint(path="../checkpoints/pointcloud/{0}.pt".format(name),epoch=epoch,model=model,optimizer=opt)
+    save_checkpoint(path="../checkpoints/pointcloud/{0}-bestModel.pt".format(name),epoch=epoch,model=best_model,optimizer=opt)
+    SaveToFile(path="../outputs/pointcloud/{0}-train-acc.txt",array=train_acc)
+    SaveToFile(path="../outputs/pointcloud/{0}-train-lost.txt",array=train_loss)
+    SaveToFile(path="../outputs/pointcloud/{0}-val-acc.txt",array=val_acc)
+    SaveToFile(path="../outputs/pointcloud/{0}-val-loss.txt",array=val_loss)
+    SaveToFile(path="../outputs/pointcloud/{0}-test-acc.txt",array=test_acc)
+    SaveToFile(path="../outputs/pointcloud/{0}-testloss.txt",array=test_loss)
+
+
+    test_acc = max(acc_test)
     if show:
         sns.set_style("whitegrid")
         plt.rcParams['figure.figsize']= (21,5)
         h,w = 1,2
         plt.subplot(h,w,1)
         plt.plot(loss_train,label="Train loss")
-        plt.plot(loss_val,label="Validation loss")
+        plt.plot(loss_test,label="Test loss")
         plt.title("Loss Report | {0} | ModelSize: {1} MB".format(name,size_all_mb))
         plt.xlabel("Epoch")
         plt.ylabel("Cross Entropy Loss")
@@ -156,7 +183,7 @@ def Train(model,TrainLoader,ValidationLoader,epoch:int,lr=0.01,weight_decay=5e-4
 
         plt.subplot(h,w,2)
         plt.plot(acc_train,label="Train Accuracy")
-        plt.plot(acc_val,label="Validation Accuracy")
+        plt.plot(acc_test,label="Test Accuracy")
         plt.title("Accuracy Report | Test Accuracy: {0}%".format(round(test_acc*100,2)))
         plt.xlabel("Epoch")
         plt.legend()
@@ -193,10 +220,12 @@ MAINargs = {
 
 wd = 0.0005
 epoch = 200
-learing_rate =0.005
+learing_rate =0.02
 
 model = SAGPoolNet(**MAINargs)
-acc,model = Train(model,TrainLoader=TrainLoader,ValidationLoader=ValidationLoader,
+acc, model= Train(model,
+           TrainLoader=TrainLoader,ValidationLoader=ValidationLoader,
             epoch=epoch,lr=learing_rate,weight_decay=wd,show=True,name="Self-Attention Graph Pooling-ModelNet10",
-            file_name="Self-Attention Graph Pooling-ModelNet10--lr-0.005")
+            file_name="Self-Attention Graph Pooling-ModelNet10-3f")
+
 
