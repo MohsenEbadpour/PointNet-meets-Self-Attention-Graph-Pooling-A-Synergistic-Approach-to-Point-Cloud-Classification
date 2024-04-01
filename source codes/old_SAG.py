@@ -93,7 +93,7 @@ def TestPerformance(model,loader):
 def SaveToFile(path,array):
     with open(path,"w") as file:
         for item in array:
-            file.write(str(item))
+            file.write(str(item)+"\n")
 
 
 def Train(model,TrainLoader,ValidationLoader,epochs:int,lr=0.01,weight_decay=5e-4,show=True,name="Self-Attention Graph Pooling",file_name ="Self-Attention Graph Pooling"):
