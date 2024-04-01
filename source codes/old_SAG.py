@@ -93,7 +93,7 @@ def TestPerformance(model,loader):
 def SaveToFile(path,array):
     with open(path,"w") as file:
         for item in array:
-            file.write(item)
+            file.write(str(item))
 
 
 def Train(model,TrainLoader,ValidationLoader,epochs:int,lr=0.01,weight_decay=5e-4,show=True,name="Self-Attention Graph Pooling",file_name ="Self-Attention Graph Pooling"):
@@ -156,14 +156,14 @@ def Train(model,TrainLoader,ValidationLoader,epochs:int,lr=0.01,weight_decay=5e-
                 best_val_loss = val_loss
                 best_model = model
 
-    save_checkpoint(path="../checkpoints/pointcloud/{0}.pt".format(name),epoch=epochs,model=model,optimizer=opt)
-    save_checkpoint(path="../checkpoints/pointcloud/{0}-bestModel.pt".format(name),epoch=epochs,model=best_model,optimizer=opt)
-    SaveToFile(path="../outputs/pointcloud/{0}-train-acc.txt",array=acc_train)
-    SaveToFile(path="../outputs/pointcloud/{0}-train-lost.txt",array=loss_train)
-    SaveToFile(path="../outputs/pointcloud/{0}-val-acc.txt",array=acc_val)
-    SaveToFile(path="../outputs/pointcloud/{0}-val-loss.txt",array=loss_val)
-    SaveToFile(path="../outputs/pointcloud/{0}-test-acc.txt",array=acc_test)
-    SaveToFile(path="../outputs/pointcloud/{0}-testloss.txt",array=loss_test)
+    save_checkpoint(path="../checkpoints/pointcloud/{0}.pt".format(file_name),epoch=epochs,model=model,optimizer=opt)
+    save_checkpoint(path="../checkpoints/pointcloud/{0}-bestModel.pt".format(file_name),epoch=epochs,model=best_model,optimizer=opt)
+    SaveToFile(path="../outputs/pointcloud/{0}-train-acc.txt".format(file_name),array=acc_train)
+    SaveToFile(path="../outputs/pointcloud/{0}-train-lost.txt".format(file_name),array=loss_train)
+    SaveToFile(path="../outputs/pointcloud/{0}-val-acc.txt".format(file_name),array=acc_val)
+    SaveToFile(path="../outputs/pointcloud/{0}-val-loss.txt".format(file_name),array=loss_val)
+    SaveToFile(path="../outputs/pointcloud/{0}-test-acc.txt".format(file_name),array=acc_test)
+    SaveToFile(path="../outputs/pointcloud/{0}-testloss.txt".format(file_name),array=loss_test)
 
 
     test_acc = max(acc_test)
@@ -196,7 +196,7 @@ def Train(model,TrainLoader,ValidationLoader,epochs:int,lr=0.01,weight_decay=5e-
 
 
 MAINargs = {
-    "SAGPoolNet_dataset_features":3,
+    "SAGPoolNet_dataset_features":4,
     "out_channels":1,
     "is_hierarchical":True,
     "use_w_for_concat":True,
@@ -225,6 +225,6 @@ model = SAGPoolNet(**MAINargs)
 acc, model= Train(model,
            TrainLoader=TrainLoader,ValidationLoader=ValidationLoader,
             epochs=epochs,lr=learing_rate,weight_decay=wd,show=True,name="Self-Attention Graph Pooling-ModelNet10",
-            file_name="Self-Attention Graph Pooling-ModelNet10-3f")
+            file_name="Self-Attention Graph Pooling-ModelNet10-closeness")
 
 
