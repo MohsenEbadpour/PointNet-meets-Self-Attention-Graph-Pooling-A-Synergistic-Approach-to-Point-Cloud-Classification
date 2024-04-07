@@ -1,8 +1,16 @@
 {
-    "epoch":200,
+  "modelNet10": {
+    "epoch": 200,
     "lr": 0.01,
-    "batch_size":64,
-    "wd":0.0005,
+    "batch_size": 64,
+    "wd": 0.0005,
     "validation": 0.07
-
+  },
+  "modelNet40": {
+    "epoch": 200,
+    "lr": 0.02,
+    "batch_size": 64,
+    "wd": 0.0005,
+    "validation": 0.07
+  }
 }
