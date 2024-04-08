@@ -141,8 +141,8 @@ def Train(model,TrainLoader,ValidationLoader,epochs:int,lr=0.01,weight_decay=5e-
         # loss_test.append(test_loss)
         acc_val.append(val_acc)
         loss_val.append(val_loss)
-        # acc_train.append(train_acc)
-        # loss_train.append(train_loss)
+        acc_train.append(train_acc)
+        loss_train.append(train_loss)
 
         # save_checkpoint(path= "../checkpoints/pointcloud/{1}_{0}.pt".format(ite,name),epoch=ite,model=model,optimizer=opt)
 
@@ -196,7 +196,7 @@ def Train(model,TrainLoader,ValidationLoader,epochs:int,lr=0.01,weight_decay=5e-
 
 
 MAINargs = {
-    "SAGPoolNet_dataset_features":10,
+    "SAGPoolNet_dataset_features":3,
     "out_channels":1,
     "is_hierarchical":True,
     "use_w_for_concat":True,
@@ -217,14 +217,14 @@ MAINargs = {
 #load
 #page
 
-wd = 0.0005
+wd = 0.0008
 epochs = 200
-learing_rate =0.01
+learing_rate =0.005
 
 model = SAGPoolNet(**MAINargs)
 acc, model= Train(model,
            TrainLoader=TrainLoader,ValidationLoader=ValidationLoader,
             epochs=epochs,lr=learing_rate,weight_decay=wd,show=True,name="Self-Attention Graph Pooling-ModelNet40",
-            file_name="Self-Attention Graph Pooling-ModelNet40")
+            file_name="Self-Attention Graph Pooling-ModelNet40-wd=0.0008")
 
 
