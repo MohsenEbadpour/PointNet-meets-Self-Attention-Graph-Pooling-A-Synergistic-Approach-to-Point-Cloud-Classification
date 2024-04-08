@@ -182,7 +182,7 @@ def Train(model,TrainLoader,ValidationLoader,epochs:int,lr=0.01,weight_decay=5e-
 
         plt.subplot(h,w,2)
         plt.plot(acc_train,label="Train Accuracy")
-        plt.plot(test_acc,label="Test Accuracy")
+        plt.plot(acc_val,label="Test Accuracy")
         plt.title("Accuracy Report | Test Accuracy: {0}%".format(round(test_acc*100,2)))
         plt.xlabel("Epoch")
         plt.legend()
@@ -217,14 +217,14 @@ MAINargs = {
 #load
 #page
 
-wd = 0.0008
-epochs = 200
+wd = 0.0003
+epochs = 100
 learing_rate =0.005
 
 model = SAGPoolNet(**MAINargs)
 acc, model= Train(model,
            TrainLoader=TrainLoader,ValidationLoader=ValidationLoader,
             epochs=epochs,lr=learing_rate,weight_decay=wd,show=True,name="Self-Attention Graph Pooling-ModelNet40",
-            file_name="Self-Attention Graph Pooling-ModelNet40-wd=0.0008")
+            file_name="Self-Attention Graph Pooling-ModelNet40-wd=0.0003")
 
 
