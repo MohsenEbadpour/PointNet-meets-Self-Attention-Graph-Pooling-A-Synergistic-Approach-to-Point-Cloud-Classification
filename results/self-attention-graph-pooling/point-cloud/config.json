@@ -8,7 +8,7 @@
   },
   "modelNet40": {
     "epoch": 200,
-    "lr": 0.02,
+    "lr": 0.004,
     "batch_size": 64,
     "wd": 0.0005,
     "validation": 0.07

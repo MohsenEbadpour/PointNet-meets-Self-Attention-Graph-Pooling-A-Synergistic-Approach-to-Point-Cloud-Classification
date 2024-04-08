@@ -106,8 +106,8 @@ def Train(model,TrainLoader,ValidationLoader,epochs:int,lr=0.01,weight_decay=5e-
     acc_train = []
     loss_val = []
     acc_val = []
-    # loss_test= []
-    # acc_test =[]
+    loss_test= []
+    acc_test =[]
     best_val_loss = 0
     best_model = None
     param_size = 0
@@ -135,10 +135,10 @@ def Train(model,TrainLoader,ValidationLoader,epochs:int,lr=0.01,weight_decay=5e-
         scheduler.step()
         val_acc,val_loss = TestPerformance(model,ValidationLoader)
         train_acc,train_loss = TestPerformance(model,TrainLoader)
-        # test_accu ,test_loss = TestPerformance(model,TestLoader)
+        test_accu ,test_loss = TestPerformance(model,TestLoader)
 
-        # acc_test.append(test_accu)
-        # loss_test.append(test_loss)
+        acc_test.append(test_accu)
+        loss_test.append(test_loss)
         acc_val.append(val_acc)
         loss_val.append(val_loss)
         acc_train.append(train_acc)
@@ -148,32 +148,32 @@ def Train(model,TrainLoader,ValidationLoader,epochs:int,lr=0.01,weight_decay=5e-
 
 
         print("Epoch: {0} | Train Loss: {1} | Train Acc: {2} | Val Loss: {3} | Val Acc: {4}".format(epoch,train_loss,train_acc,val_loss,val_acc,size_all_mb))
-        # if epoch == 0:
-        #     best_val_loss = val_loss
-        #     best_model = model
-        # else:
-        #     if val_loss <= best_val_loss:
-        #         best_val_loss = val_loss
-        #         best_model = model
+        if epoch == 0:
+            best_val_loss = val_loss
+            best_model = model
+        else:
+            if val_loss <= best_val_loss:
+                best_val_loss = val_loss
+                best_model = model
 
-    # save_checkpoint(path="../checkpoints/pointcloud/{0}.pt".format(file_name),epoch=epochs,model=model,optimizer=opt)
-    # save_checkpoint(path="../checkpoints/pointcloud/bestModels/{0}-bestModel.pt".format(file_name),epoch=epochs,model=best_model,optimizer=opt)
-    # SaveToFile(path="../outputs/pointcloud/train/{0}-train-acc.txt".format(file_name),array=acc_train)
-    # SaveToFile(path="../outputs/pointcloud/train/{0}-train-lost.txt".format(file_name),array=loss_train)
-    # SaveToFile(path="../outputs/pointcloud/val/{0}-val-acc.txt".format(file_name),array=acc_val)
-    # SaveToFile(path="../outputs/pointcloud/val/{0}-val-loss.txt".format(file_name),array=loss_val)
-    # SaveToFile(path="../outputs/pointcloud/test/{0}-test-acc.txt".format(file_name),array=acc_test)
-    # SaveToFile(path="../outputs/pointcloud/test/{0}-test-loss.txt".format(file_name),array=loss_test)
+    save_checkpoint(path="../checkpoints/pointcloud/{0}.pt".format(file_name),epoch=epochs,model=model,optimizer=opt)
+    save_checkpoint(path="../checkpoints/pointcloud/bestModels/{0}-bestModel.pt".format(file_name),epoch=epochs,model=best_model,optimizer=opt)
+    SaveToFile(path="../outputs/pointcloud/train/{0}-train-acc.txt".format(file_name),array=acc_train)
+    SaveToFile(path="../outputs/pointcloud/train/{0}-train-lost.txt".format(file_name),array=loss_train)
+    SaveToFile(path="../outputs/pointcloud/val/{0}-val-acc.txt".format(file_name),array=acc_val)
+    SaveToFile(path="../outputs/pointcloud/val/{0}-val-loss.txt".format(file_name),array=loss_val)
+    SaveToFile(path="../outputs/pointcloud/test/{0}-test-acc.txt".format(file_name),array=acc_test)
+    SaveToFile(path="../outputs/pointcloud/test/{0}-test-loss.txt".format(file_name),array=loss_test)
 
 
-    test_acc = max(acc_val)
+    test_acc = max(acc_test)
     if show:
         sns.set_style("whitegrid")
         plt.rcParams['figure.figsize']= (21,5)
         h,w = 1,2
         plt.subplot(h,w,1)
         plt.plot(loss_train,label="Train loss")
-        plt.plot(loss_val,label="Test loss")
+        plt.plot(loss_test,label="Test loss")
         plt.title("Loss Report | {0} | ModelSize: {1} MB".format(name,size_all_mb))
         plt.xlabel("Epoch")
         plt.ylabel("Cross Entropy Loss")
@@ -182,7 +182,7 @@ def Train(model,TrainLoader,ValidationLoader,epochs:int,lr=0.01,weight_decay=5e-
 
         plt.subplot(h,w,2)
         plt.plot(acc_train,label="Train Accuracy")
-        plt.plot(acc_val,label="Test Accuracy")
+        plt.plot(acc_test,label="Test Accuracy")
         plt.title("Accuracy Report | Test Accuracy: {0}%".format(round(test_acc*100,2)))
         plt.xlabel("Epoch")
         plt.legend()
@@ -217,14 +217,14 @@ MAINargs = {
 #load
 #page
 
-wd = 0.0003
+wd = 0.0005
 epochs = 100
-learing_rate =0.005
+learing_rate =0.004
 
 model = SAGPoolNet(**MAINargs)
 acc, model= Train(model,
            TrainLoader=TrainLoader,ValidationLoader=ValidationLoader,
             epochs=epochs,lr=learing_rate,weight_decay=wd,show=True,name="Self-Attention Graph Pooling-ModelNet40",
-            file_name="Self-Attention Graph Pooling-ModelNet40-wd=0.0003")
+            file_name="Self-Attention Graph Pooling-ModelNet40-3f")
 
 
