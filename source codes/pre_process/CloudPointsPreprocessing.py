@@ -247,7 +247,7 @@ class PointCloudData(Dataset):
                 temp = np.load(graph_feature_path)["arr_0"]
                 empty = []
                 for i in temp:
-                    i = np.append(i[:3],i[5])
+                    i = np.append(i[:3],i[9])
                     empty.append(i)
                     # empty.append(i[:3])
                 # print(empty)
