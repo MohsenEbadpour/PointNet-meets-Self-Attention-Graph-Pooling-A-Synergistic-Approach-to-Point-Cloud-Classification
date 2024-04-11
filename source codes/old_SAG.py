@@ -196,7 +196,7 @@ def Train(model,TrainLoader,ValidationLoader,epochs:int,lr=0.01,weight_decay=5e-
 
 
 MAINargs = {
-    "SAGPoolNet_dataset_features":4,
+    "SAGPoolNet_dataset_features":10,
     "out_channels":1,
     "is_hierarchical":True,
     "use_w_for_concat":True,
@@ -225,6 +225,6 @@ model = SAGPoolNet(**MAINargs)
 acc, model= Train(model,
            TrainLoader=TrainLoader,ValidationLoader=ValidationLoader,
             epochs=epochs,lr=learing_rate,weight_decay=wd,show=True,name="Self-Attention Graph Pooling-ModelNet40",
-            file_name="Self-Attention Graph Pooling-ModelNet40-page")
+            file_name="Self-Attention Graph Pooling-ModelNet40-all")
 
 
