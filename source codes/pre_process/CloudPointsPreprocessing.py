@@ -246,12 +246,12 @@ class PointCloudData(Dataset):
                 pointcloud = torch.from_numpy(np.load(pointcloud_path)["arr_0"])
                 temp = np.load(graph_feature_path)["arr_0"]
                 empty = []
-                # for i in temp:
-                #     i = np.append(i[:3],i[9])
-                #     empty.append(i)
-                    # empty.append(i[:3])
+                for i in temp:
+                    # i = np.append(i[:3],i[9])
+                    # empty.append(i)
+                    empty.append(i[:3])
                 # print(empty)
-                graph_features = torch.from_numpy(np.array(temp))
+                graph_features = torch.from_numpy(np.array(empty))
                 edge_list = torch.from_numpy(np.load(graph_edge_list_path)["arr_0"])
 
                 with open(graph_path, 'rb') as handle:
