@@ -39,7 +39,7 @@ np.random.seed(42)
 
 dataset_graph_test = PointCloudGraph(dataset_pointcloud_test)
 
-print(len(dataset_pointcloud_train))
+
 dataset_graph_train = PointCloudGraph(dataset_pointcloud_train)
 
 TrainSet,ValidationSet,TestSet = GetSets(dataset_graph_train,train=0.97,valid=0.03)

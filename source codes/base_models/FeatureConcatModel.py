@@ -16,9 +16,9 @@ LAYERS = {
     SAGEConv:"SAGEConv",
     ChebConv:"ChebConv"
 }
-from pre_process.GraphPreprocessing import *
-from PointNet import *
-from SelfAttentionGraphPooling import * 
+from pre_process.PointCloudGraphPreprocessing import *
+from .PointNet import *
+from .SelfAttentionGraphPooling import * 
 
 class FeatureConcatModel(torch.nn.Module):
     def __init__(self):
@@ -55,10 +55,11 @@ class FeatureConcatModel(torch.nn.Module):
         
         
     def forward(self, data):
-        data_graph = ConvertBatchToGraph(data)
-        data_graph = data_graph.to("cuda")
+        print(data)
+        # data_graph = ConvertBatchToGraph(data)
+        data_graph = data.to("cuda")
         out_graph = self.graph_pool_model(data_graph)
-        
+        # print(data)
         data_pointnet = data['graph_features'].float().transpose(1,2).to("cuda")
         out_pointnet,m3,m64 = self.pointnet_model(data_pointnet)
         out_pointnet = nn.MaxPool1d(out_pointnet.size(-1))(out_pointnet)
