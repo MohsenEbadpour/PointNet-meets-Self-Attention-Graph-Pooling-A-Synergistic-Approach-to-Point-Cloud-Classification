@@ -18,11 +18,12 @@ dataset_pointcloud_test = PointCloudData(path_global, valid=True, folder='test',
 dataset_pointcloud_train = PointCloudData(path_global, force_to_cal=False)
 torch.manual_seed(42)
 np.random.seed(42)
+
 # dataset_graph_test = PointCloudGraph(dataset_pointcloud_test)
 # dataset_graph_train = PointCloudGraph(dataset_pointcloud_train)
 
-dataset_pointcloud_train_loader = TDataloader(dataset=dataset_pointcloud_train, batch_size=64, shuffle=True)
-dataset_pointcloud_test_loader = TDataloader(dataset=dataset_pointcloud_test, batch_size=64)
+dataset_pointcloud_train_loader = DataLoader(dataset=dataset_pointcloud_train, batch_size=64, shuffle=True)
+dataset_pointcloud_test_loader = DataLoader(dataset=dataset_pointcloud_test, batch_size=64)
 
 model = FeatureConcatModel()
 acc, model = TrainCustom(model, dataset_pointcloud_train_loader, dataset_pointcloud_test_loader, lr=0.005, weight_decay=0.0005,epochs=100, name="FeatureConcatModel")

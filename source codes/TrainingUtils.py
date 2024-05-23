@@ -53,7 +53,9 @@ def TestPerfomanceCustom(model,loader):
         loss = 0.
         model = model.to("cuda")
         for data in loader:
-            outputs, m3x3, m64x64 = model(data)
+            inputs = data['graph_features']
+            inputs = inputs.to("cuda")
+            outputs, m3x3, m64x64 = model(input)
             labels = data['category'].to("cuda")
             pred = outputs.max(dim=1)[1]
             correct += pred.eq(labels).sum().item()
@@ -77,6 +79,8 @@ def TrainCustom(model, train_loader, val_loader,lr=0.01,weight_decay=0.0005, epo
     model = model.to(device)
 
     optimizer = optim.Adam(model.parameters(), lr=lr, weight_decay=weight_decay)
+    scheduler = optim.lr_scheduler.ExponentialLR(optimizer=optimizer, gamma=0.97)
+
     loss_train = []
     acc_train = []
 
@@ -85,15 +89,17 @@ def TrainCustom(model, train_loader, val_loader,lr=0.01,weight_decay=0.0005, epo
     for epoch in range(epochs):
         model.train()
 
-        for i, data in tqdm(enumerate(train_loader, 0)):
+        for i, data in enumerate(train_loader):
+            inputs = data['graph_features']
+            inputs = inputs.to("cuda")
             optimizer.zero_grad()
-            outputs, m3x3, m64x64 = model(data)
+            outputs, m3x3, m64x64 = model(inputs)
             labels = data['category'].to(device)
             loss = PointNetLoss(outputs, labels, m3x3, m64x64,defualt_dim=10)
             loss.backward()
             optimizer.step()
 
-
+        scheduler.step()
         val_acc,val_loss = TestPerfomanceCustom(model,val_loader)
         train_acc,train_loss = TestPerfomanceCustom(model,train_loader)
 
