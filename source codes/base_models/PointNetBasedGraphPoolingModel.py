@@ -43,12 +43,12 @@ from sklearn.metrics import confusion_matrix,accuracy_score
 import scipy.spatial.distance
 import networkx as nx
 
-from PointNet import *
-from SelfAttentionGraphPooling import * 
+from .PointNet import *
+from .SelfAttentionGraphPooling import * 
 
 
 class PointNetBasedGraphPoolingModel(torch.nn.Module):
-    def __init__(self):
+    def __init__(self,num_classes =10):
         super().__init__()
         
         MAINargs = {
@@ -62,12 +62,14 @@ class PointNetBasedGraphPoolingModel(torch.nn.Module):
         "heads":6,
         "concat":False,
         "send_feature":False,
-        "hidden_features":256
+        "hidden_features":256,
+    "num_classes":num_classes
+
         }
         
         self.graph_pool_model = SAGPoolNet(**MAINargs)
         
-        self.pointnet_model = PointNet(send_feature=True,input_dim=10)
+        self.pointnet_model = PointNet(send_feature=True,input_dim=10,classes=num_classes)
         self.conv = nn.Conv1d(1024,32,1)
         self.bn = nn.BatchNorm1d(32)
         

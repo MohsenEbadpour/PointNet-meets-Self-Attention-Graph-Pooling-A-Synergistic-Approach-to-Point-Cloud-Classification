@@ -123,6 +123,8 @@ class PointNet(nn.Module):
     
 def PointNetLoss(outputs, labels, m3x3, m64x64, alpha = 0.0001,defualt_dim=3):
     criterion = torch.nn.NLLLoss()
+    # print(outputs[0])
+    # print(labels)
     bs=outputs.size(0)
     id3x3 = torch.eye(defualt_dim, requires_grad=True).repeat(bs,1,1)
     id64x64 = torch.eye(64, requires_grad=True).repeat(bs,1,1)

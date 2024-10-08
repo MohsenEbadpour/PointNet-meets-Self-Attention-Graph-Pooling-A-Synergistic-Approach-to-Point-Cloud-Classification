@@ -53,9 +53,9 @@ def TestPerfomanceCustom(model,loader):
         loss = 0.
         model = model.to("cuda")
         for data in loader:
-            inputs = data['graph_features']
-            inputs = inputs.to("cuda")
-            outputs, m3x3, m64x64 = model(input)
+            # inputs = data['graph_features']
+            # inputs = inputs.to("cuda")
+            outputs, m3x3, m64x64 = model(data)
             labels = data['category'].to("cuda")
             pred = outputs.max(dim=1)[1]
             correct += pred.eq(labels).sum().item()
@@ -65,7 +65,7 @@ def TestPerfomanceCustom(model,loader):
     return correct / len(loader.dataset),loss / len(loader.dataset)
 
 
-def TrainCustom(model, train_loader, val_loader,lr=0.01,weight_decay=0.0005, epochs=30, name="PointNet"):
+def TrainCustom(model, train_loader, val_loader,lr=0.01,weight_decay=0.0005, epochs=30, name="PointNet",file_name = "Feature"):
     param_size = 0
     for param in model.parameters():
         param_size += param.nelement() * param.element_size()
@@ -89,11 +89,11 @@ def TrainCustom(model, train_loader, val_loader,lr=0.01,weight_decay=0.0005, epo
     for epoch in range(epochs):
         model.train()
 
-        for i, data in enumerate(train_loader):
-            inputs = data['graph_features']
-            inputs = inputs.to("cuda")
+        for i, data in tqdm(enumerate(train_loader),0):
+            # inputs = data['graph_features']
+            # inputs = inputs.to("cuda")
             optimizer.zero_grad()
-            outputs, m3x3, m64x64 = model(inputs)
+            outputs, m3x3, m64x64 = model(data)
             labels = data['category'].to(device)
             loss = PointNetLoss(outputs, labels, m3x3, m64x64,defualt_dim=10)
             loss.backward()
@@ -119,22 +119,22 @@ def TrainCustom(model, train_loader, val_loader,lr=0.01,weight_decay=0.0005, epo
     h,w = 1,2
     plt.subplot(h,w,1)
     plt.plot(loss_train,label="Train loss")
-    plt.plot(loss_val,label="Validation loss")
+    plt.plot(loss_val,label="Test loss")
     plt.title("Loss Report | {0} | ModelSize: {1} MB".format(name,size_all_mb))
     plt.xlabel("Epoch")
-    plt.ylabel("NLLLoss")
+    plt.ylabel("Loss")
     plt.legend()
     #plt.show()
 
     plt.subplot(h,w,2)
     plt.plot(acc_train,label="Train Accuracy")
-    plt.plot(acc_val,label="Validation Accuracy")
+    plt.plot(acc_val,label="Test Accuracy")
     plt.title("Accuracy Report | Test Accuracy: {0}%".format(round(test_acc*100,2)))
     plt.xlabel("Epoch")
     plt.legend()
 
     plt.tight_layout()
-    plt.savefig("./{0}.png".format(name))
+    plt.savefig("./{0}.png".format(file_name))
     plt.show()
     plt.clf()
 

@@ -21,11 +21,11 @@ from .PointNet import *
 from .SelfAttentionGraphPooling import * 
 
 class FeatureConcatModel(torch.nn.Module):
-    def __init__(self):
+    def __init__(self,num_feature =10,num_classes =10):
         super().__init__()
         
         MAINargs = {
-        "SAGPoolNet_dataset_features":10,
+        "SAGPoolNet_dataset_features":num_feature,
         "out_channels":1,
         "is_hierarchical":True,
         "use_w_for_concat":True,
@@ -35,18 +35,20 @@ class FeatureConcatModel(torch.nn.Module):
         "heads":6,
         "concat":False,
         "send_feature":True,
-        "hidden_features":128
+        "hidden_features":128,
+        "num_classes":num_classes
+
         }
         
         self.graph_pool_model = SAGPoolNet(**MAINargs)
         
-        self.pointnet_model = PointNet(send_feature=True,input_dim=10)
+        self.pointnet_model = PointNet(send_feature=True,input_dim=10,classes=num_classes)
         self.fc_point_net = nn.Linear(1024, 64)
         self.bn_point_net = nn.BatchNorm1d(64)
         
         self.fc1 = nn.Linear(128, 64)
         self.fc2 = nn.Linear(64, 32)
-        self.fc3 = nn.Linear(32, 10)
+        self.fc3 = nn.Linear(32, num_classes)
         
         self.bn1 = nn.BatchNorm1d(64)
         self.bn2 = nn.BatchNorm1d(32)
@@ -55,17 +57,14 @@ class FeatureConcatModel(torch.nn.Module):
         
         
     def forward(self, data):
-        print(data)
-        # data_graph = ConvertBatchToGraph(data)
-        data_graph = data.to("cuda")
+        data_graph = ConvertBatchToGraph(data)
+        data_graph = data_graph.to("cuda")
         out_graph = self.graph_pool_model(data_graph)
-        # print(data)
         data_pointnet = data['graph_features'].float().transpose(1,2).to("cuda")
         out_pointnet,m3,m64 = self.pointnet_model(data_pointnet)
         out_pointnet = nn.MaxPool1d(out_pointnet.size(-1))(out_pointnet)
         out_pointnet = nn.Flatten(1)(out_pointnet)
-        out_pointnet = F.relu(self.bn_point_net(self.fc_point_net(out_pointnet)))
-        
+        out_pointnet = F.relu(self.bn_point_net(self.fc_point_net(out_pointnet)))        
         final_out = torch.cat([out_graph,out_pointnet],dim=1)
         final_out = F.relu(self.bn1(self.fc1(final_out)))
         final_out = F.relu(self.bn2(self.dropout(self.fc2(final_out))))
