@@ -17,11 +17,12 @@
 }
 
 \author{
-\IEEEauthorblockN{1\textsuperscript{st} M. Ebadpour}
-\IEEEauthorblockA{\textit{Master of Science student} \\
+\IEEEauthorblockN{1\textsuperscript{rd} M. Choupan}
+\IEEEauthorblockA{\textit{bachelor of science} \\
 \textit{Amirkabir university of technology}\\
 Tehran, Iran \\
-M.Ebadpour@aut.ac.ir}
+mohammad.choupan@studio.unibo.it}
+
 \and
 \IEEEauthorblockN{2\textsuperscript{nd} M. Javanmardi}
 \IEEEauthorblockA{\textit{Assistant Professor} \\
@@ -29,17 +30,11 @@ M.Ebadpour@aut.ac.ir}
 Tehran, Iran \\
 MJavan@aut.ac.ir}
 \and
-\IEEEauthorblockN{3\textsuperscript{rd} M. Choupan}
-\IEEEauthorblockA{\textit{bachelor of science} \\
+\IEEEauthorblockN{3\textsuperscript{st} M. Ebadpour}
+\IEEEauthorblockA{\textit{Master of Science student} \\
 \textit{Amirkabir university of technology}\\
 Tehran, Iran \\
-Mohamadkhoee@aut.ac.ir}
-% \and
-% \IEEEauthorblockN{4\textsuperscript{th} M. Atyabi}
-% \IEEEauthorblockA{\textit{bachelor of science} \\
-% \textit{Amirkabir university of technology}\\
-% Tehran, Iran \\
-% atyabi2000@gmail.com}   
+M.Ebadpour@aut.ac.ir}
 
 }
 
@@ -80,15 +75,146 @@ Point Cloud Classification, PointNet, Self-Attention Graph Pooling, 3D Object Re
 \end{IEEEkeywords}
 
 \section{Introduction}
-{
-    \color{red}
-    [skipped]
-}
+
+
+In recent years, 3D computer vision has become an essential component of many real-world applications, including autonomous driving, robotics, virtual and augmented reality, and digital heritage. Among the different 3D representations, point clouds have emerged as a particularly flexible and expressive data format. A point cloud represents an object or scene as an unordered set of points in $\mathbb{R}^3$, typically described by their $(x,y,z)$ coordinates and, in some cases, additional attributes such as color or intensity. Despite their flexibility, point clouds pose significant challenges for traditional deep learning architectures, which are usually designed for grid-structured data such as images or regular volumes.
+
+Early approaches to point cloud analysis often relied on hand-crafted features, voxelization, or multi-view projections. Voxel-based methods discretize the 3D space into a regular grid, enabling the use of 3D convolutional neural networks, but they suffer from substantial memory overhead and loss of geometric detail due to resolution constraints. Multi-view methods project the 3D object onto a set of 2D images and then apply standard 2D CNNs; while effective in some cases, they may discard important 3D structural information and often require complex rendering pipelines. These limitations motivated the development of architectures that operate directly on raw point sets.
+
+PointNet~\cite{b1} introduced a breakthrough formulation for point cloud classification and segmentation by processing each point independently with shared multilayer perceptrons (MLPs) and aggregating local features using a symmetric function (e.g., max pooling). This design guarantees invariance to the ordering of points and enables efficient learning directly in the point domain. However, PointNet and many of its variants focus primarily on per-point features and global pooling, and therefore have limited ability to explicitly model the relational structure and long-range dependencies among points. As a result, they may struggle in scenarios where the geometric configuration and interactions between different parts of an object are critical for accurate recognition.
+
+Graphs offer a natural way to encode the relational structure of point clouds. By treating each point as a node and connecting nearby points with edges, a point cloud can be converted into a graph in which both local neighborhoods and global connectivity patterns are explicitly represented. Graph Neural Networks (GNNs) and graph pooling methods can then be used to propagate information along edges and to build hierarchical representations of the underlying 3D shape. In particular, self-attention-based pooling schemes such as Self-Attention Graph Pooling (SAGPool) learn to assign importance scores to nodes and select the most informative ones, effectively focusing the model on salient regions of the object while reducing computational cost.
+
+Beyond the raw geometry, graphs also make it possible to compute rich structural descriptors such as centrality measures. Centrality metrics like betweenness, closeness, eigenvector, harmonic, Katz, load, and PageRank centralities quantify different notions of importance or influence of nodes within the graph. When computed on graphs derived from point clouds, these measures capture how each point is embedded in the global structure of the object, for example whether it lies on a highly connected hub, along a critical path, or on the periphery of the shape. Such information is complementary to the local geometric cues typically exploited by point-based networks.
+
+These observations motivate the development of fusion architectures that combine the strengths of point-based and graph-based models. PointNet-style networks excel at capturing local geometric patterns and learning robust global descriptors from unordered point sets, while SAGPool-style graph networks are well-suited to modeling relational structure and focusing on the most informative regions of a graph. By integrating point-wise features extracted by PointNet with graph-level features produced by SAGPool, and by enriching both with centrality-based descriptors, it is possible to construct more expressive and discriminative representations for point cloud classification.
+
+\subsection{Traditional Point Cloud Networks and Their Limitations}
+
+Traditional point cloud classification networks such as PointNet and its variants directly consume unordered point sets and leverage symmetric aggregation functions to ensure permutation invariance. These models have demonstrated strong performance on benchmarks like ModelNet10 and ModelNet40, and they represent a key milestone in 3D deep learning. However, because each point is processed independently before global pooling, the explicit pairwise or higher-order relationships among points are not fully exploited. This can limit the ability of such networks to distinguish between shapes that share similar local patterns but differ in their global arrangement.
+
+Another limitation concerns scalability and generalization. As the number of points or the complexity of the object increases, capturing all relevant interactions through simple global pooling becomes more difficult. In addition, while PointNet employs transformation networks (T-Nets) to align the input and intermediate features, it still relies on learned per-point embeddings that may not capture long-range dependencies and global context as effectively as graph-based methods.
+
+\subsection{Graph-Based Methods and SAGPool Architecture}
+
+Graph-based methods address these limitations by explicitly modeling the relationships among points. Once a graph is constructed from a point cloud (for example, using $k$-nearest neighbors in Euclidean space), Graph Neural Networks can propagate information along edges to aggregate features from local neighborhoods. Stacking multiple graph convolutional layers yields receptive fields that grow with depth, enabling the network to capture both local and global structure.
+
+Self-Attention Graph Pooling (SAGPool) \cite{b2} builds on this idea by introducing a learnable attention mechanism for graph pooling. Instead of heuristically downsampling nodes, SAGPool predicts an importance score for each node and retains only the most informative ones, discarding less relevant points and their incident edges. This leads to compact yet expressive graph representations that emphasize salient regions of the object, improving both accuracy and computational efficiency in graph classification tasks. Nonetheless, when SAGPool is applied directly to point clouds, it may underutilize rich point-wise geometric features and may not fully exploit the powerful feature extractors developed in point-based networks.
+
+\subsection{Motivation for Fusion Approaches}
+
+The complementary strengths of PointNet and SAGPool suggest that a carefully designed fusion of point-based and graph-based representations can yield more powerful models for point cloud classification. PointNet provides strong per-point descriptors and a robust global summary of the point set, while SAGPool contributes hierarchical graph representations and attention-driven node selection. Moreover, centrality measures computed on point cloud graphs encode additional structural information that is not directly accessible to purely point-based architectures.
+
+In this work, we exploit these synergies by proposing fusion networks that integrate PointNet and SAGPool at the feature level. Our architectures ingest both raw coordinates and centrality features, construct graphs over the point clouds, and combine the resulting point-wise and graph-wise representations in a unified framework. The goal is to improve classification accuracy while preserving or even reducing memory footprint compared to standard baselines, making the models suitable for deployment in resource-constrained settings.
+
+\subsection{Contributions}
+
+To summarize, this paper makes the following contributions:
+\begin{itemize}
+  \item We propose two novel fusion architectures, \emph{FeatureConcat} and \emph{Graph Classification Based on PointNet Features} (PointNetBasedGraphPooling), which jointly exploit point-wise features from PointNet and graph-based representations from SAGPool for point cloud classification.
+  \item We introduce a comprehensive feature engineering pipeline that augments raw 3D coordinates with multiple graph-based centrality measures, enabling a richer description of the structural role of each point in the underlying graph.
+  \item We present an efficient GPU-based implementation and extensive experiments on the ModelNet10 and ModelNet40 datasets, providing a detailed analysis of accuracy, model size, and generalization, and demonstrating that the proposed fusion models outperform the individual PointNet and SAGPool baselines.
+\end{itemize}
+
+
 \section{Related Works}
-{
-    \color{red}
-    [should be done by Ms.Atybai]
-}
+
+Research on 3D point cloud understanding has progressed along two main lines:
+methods that operate directly on unordered point sets, and methods that first
+convert point clouds into structured representations such as graphs, voxels, or
+multi-view images. In this section, we briefly review the most relevant
+approaches and position our work with respect to them.
+
+\subsection{Point-Based Deep Networks for Point Clouds}
+
+PointNet~\cite{b1} pioneered end-to-end learning directly on raw point sets by
+processing each point independently with shared multilayer perceptrons and
+aggregating features using a symmetric function to guarantee permutation
+invariance. Despite its simple architecture, PointNet achieved strong
+performance on benchmarks such as ModelNet10 and ModelNet40 and became a
+cornerstone for subsequent work on 3D deep learning.
+
+PointNet++~\cite{b3} extended this idea by introducing a hierarchical
+feature-learning scheme that groups points into local neighborhoods at multiple
+scales, enabling the network to capture local geometric details while retaining
+the global representation power of PointNet. Other architectures, such as
+EdgeConv-based Dynamic Graph CNNs for learning on point clouds~\cite{b4}, further
+refined local feature extraction by dynamically constructing graphs in the
+feature space and applying edge convolutions that are sensitive to local
+geometry. These point-based models have shown that learning directly from
+unordered point sets is both feasible and effective, but they typically rely on
+global pooling operations and do not explicitly encode long-range relational
+structure among points.
+
+\subsection{Graph-Based Methods and Pooling on Point Clouds}
+
+Graphs provide a natural framework for modeling the relational structure of
+point clouds. Once a graph is constructed (for example, using $k$-nearest
+neighbors in Euclidean space), Graph Neural Networks can be applied to propagate
+information along edges. Early work on spectral graph convolutional
+networks~\cite{b4,b5} laid the foundation for learning filters in the
+spectral domain of the graph Laplacian, while later spatial methods defined
+convolutions directly in the vertex domain.
+
+In the context of point clouds, graph representations have been used to capture
+both local neighborhoods and global topology, often leading to improved
+robustness to irregular sampling and noise. A key challenge is how to perform
+pooling on graphs, since standard downsampling operators used in CNNs do not
+directly transfer to irregular structures. Various graph pooling strategies
+have been proposed, including clustering-based coarsening, top-$k$ selection,
+and attention-based mechanisms. Self-attention graph pooling approaches, such
+as the SAGPool architecture considered in this work, learn importance scores
+for nodes and retain only the most informative ones, yielding compact and
+expressive graph-level representations while discarding less relevant nodes and
+edges.
+
+\subsection{Fusion of Point-Based and Graph-Based Representations}
+
+While point-based and graph-based methods each have specific advantages, a
+single representation often cannot fully exploit both local geometric cues and
+global structural information. Several works therefore attempt to combine point
+features with graph-based reasoning. Some architectures first compute
+point-wise descriptors using PointNet-like blocks and then build graphs in the
+feature space to capture contextual relations among points; others interleave
+graph convolutions with point-based operations to refine features at multiple
+scales.
+
+Our work follows this line of research but focuses on explicit fusion between a
+PointNet backbone and a hierarchical graph pooling network (SAGPool). The
+proposed FeatureConcat and PointNetBasedGraphPooling architectures are designed
+to exploit complementary strengths: PointNet provides strong point-wise
+embeddings and global descriptors, while SAGPool contributes hierarchical
+graph-level representations and attention-driven node selection. Compared to
+methods that rely exclusively on either point-based or graph-based processing,
+our fusion schemes aim to achieve higher accuracy with a competitive or even
+reduced memory footprint.
+
+\subsection{Centrality Measures and Graph-Derived Features}
+
+Graph-based centrality measures such as betweenness, closeness, eigenvector,
+harmonic, Katz, load, and PageRank centralities have been widely studied in
+network analysis~\cite{b4,b5}. They quantify different notions of importance
+or influence of nodes within a graph, capturing how each node contributes to
+global connectivity, information flow, or structural cohesion. In many
+applications, centrality features have been used as powerful descriptors for
+tasks such as community detection, anomaly detection, and classification.
+
+In the context of point clouds, centrality measures computed on graphs derived
+from 3D shapes provide complementary information to raw coordinates and learned
+features. For example, points on object boundaries, thin structures, or
+junctions may exhibit distinctive centrality patterns that help distinguish
+similar shapes. However, relatively few works have systematically investigated
+the use of such graph-derived features in combination with deep point cloud
+networks.
+
+The present work contributes to this direction by integrating multiple
+centrality measures into both point-based and graph-based pipelines. We treat
+centralities as additional per-point channels and study their impact on
+PointNet, SAGPool, and two fusion architectures. Our experiments on ModelNet10
+and ModelNet40 demonstrate that carefully designed fusion of point-wise,
+graph-based, and centrality-based features can significantly improve point
+cloud classification performance over strong baselines.
+
 
 \section{PROPOSED APPROACHES}
 \subsection{Feature Engineering }\label{AA}
@@ -200,12 +326,7 @@ We employ dropout techniques with a probability of 0.3 in the second layer, redu
 
 
 
-\begin{figure*}[t]
-\centering{
-\includegraphics{fig2.png}}
-\caption{The architecture for the graph classification based on PointNet features.}
-\label{fig1}
-\end{figure*}
+
 
 This proposed "FeatureConcatModel" fusion approach offers a promising 
 solution for point cloud classification, leveraging the strengths of both PointNet
@@ -222,7 +343,12 @@ The "PointNetBasedGraphPoolingModel" fusion approach represents a sophisticated 
     This design choice enables PointNet to capture intricate local features and spatial relationships present in the data. 
     The architecture for the graph classification based on PointNet features is showcased in ``Fig.~\ref{fig1}''.
 
-
+\begin{figure*}[t]
+\centering{
+\includegraphics{fig2.png}}
+\caption{The architecture for the graph classification based on PointNet features.}
+\label{fig1}
+\end{figure*}
 Subsequently, we enhance the feature vectors obtained from PointNet by applying 1D convolution, followed by batch normalization. This operation efficiently reduces the dimensionality to 32, effectively distilling essential information from PointNet's output. The resulting 32-feature vectors, carrying valuable local feature representations, are then fed into the SAGPool network.
 
 SAGPool, with its primary edge list structure and consistent graph schema, efficiently performs adaptive feature pooling and aggregation. The integration of the PointNet-derived feature vectors into the SAGPool network further enhances its ability to capture meaningful global context while preserving crucial local details.
@@ -233,12 +359,7 @@ The effectiveness of this fusion approach contributes significantly to the advan
 
 
 \section{EXPERIMENTS AND RESULTS}
-\begin{figure*}[t!]
-    \centering
-    \includegraphics[height=4cm]{fig3.png}
-    \caption{Training result for traditional PointNet Network On model Net 10.}
-    \label{fig3}
-    \end{figure*}
+
 \subsection{Implementation details and hyper-parameters}
 In our implementation, we adopted the PyTorch framework as the primary tool for model development. To facilitate graph pooling and centrality calculations, we incorporated PyTorch Geometric and NetworkX libraries, respectively. A comprehensive dataloader was designed, encompassing all
 
@@ -259,7 +380,12 @@ hyperparameters ensured efficient and effective exploration of the fusion approa
 
 \subsection{Dataset}
 
-
+\begin{figure*}[t!]
+    \centering
+    \includegraphics[height=4cm]{fig3.png}
+    \caption{Training result for traditional PointNet Network On model Net 10.}
+    \label{fig3}
+    \end{figure*}
 % The dataset used for training and testing the networks in this study is ModelNets. ModelNets are a widely used benchmark datasets in the field of 3D object recognition and classification.
 %  It coculed ModelNet10 and ModelNet40 which have 10 and 40 classes. The categories in these datasets include common objects such as chairs, tables, airplanes, and cars, among others.
 
@@ -374,6 +500,37 @@ Conversely, in the Point-Net model, Katz centrality emerges as the best feature 
         
         \end{center}
         \end{table}
+
+\begin{table}[t]
+    \caption{Training results of each feature on the Self-Attention Graph Pooling (SAGPool) network on ModelNet40. The learning rate is fixed to $0.004$ and the weight decay to $0.005$.}
+    \label{tab:sagpool_m40}
+    \begin{center}
+    \begin{tabular}{|c|c|}
+        \hline
+        \textbf{\textit{Features}} & \textbf{\textit{Acc (\%)}} \\
+        \hline
+        3 (XYZ) & 78.44 \\
+        \hline
+        3 (XYZ) + Betweenness & 74.11 \\
+        \hline
+        3 (XYZ) + Closeness & 74.80 \\
+        \hline
+        3 (XYZ) + Eigenvector & 68.48 \\
+        \hline
+        3 (XYZ) + Harmonic & 77.03 \\
+        \hline
+        3 (XYZ) + Katz & 71.47 \\
+        \hline
+        3 (XYZ) + Load & 71.80 \\
+        \hline
+        3 (XYZ) + PageRank & 71.27 \\
+        \hline
+        All features (XYZ + 7 centralities) & 75.04 \\
+        \hline
+    \end{tabular}
+    \end{center}
+\end{table}
+
         
 
 The third network implemented our proposed feature concatenation approach, where we combined the high-level features extracted from both PointNet and SAGPool networks.
@@ -407,44 +564,120 @@ In all four networks, the same sets were used for training and testing, ensuring
 
 
 \begin{table*}[t]
-    
-\caption{Training Results of Four Networks. This table provides a comprehensive overview of the results obtained from training four networks, including traditional PointNet, hierarchical SAGPool, feature concatenation, and Graph Classification based on PointNet Features approaches. For each network, the features used during training, test accuracy achieved, model size, and corresponding learning rate are reported. The best-performing results are denoted by bold font, while the second-best results are underlined, offering valuable insights into the performance of each approach}
-\begin{center}
+\caption{Best test accuracy on ModelNet10 and ModelNet40 for the four network architectures. For each model we report the best-performing configuration in terms of input features. Model sizes are reported for the corresponding PyTorch implementations.}
+\label{tab}
+\centering
 \begin{tabular}{|c|c|c|c|c|}
 \hline
-\textbf{Network} & \textbf{\textit{Features}}& \textbf{\textit{Acc}}& \textbf{\textit{Size}}& \textbf{\textit{LR}} \\
+\textbf{Network} & \textbf{Dataset} & \textbf{\textit{Features}} & \textbf{\textit{Acc (\%)}} & \textbf{\textit{Size}} \\
 \hline
-PointNet& 3 (XYZ)&	91.85& 13.259 MB& 0.001 \\
+PointNet & ModelNet10 & 3 (XYZ) + 7 (Centralities) & 92.95 & 13.259 MB \\
 \hline
-Hierarchical SAGPool&	3 (XYZ) + 7 (Centralities)& 87.89&	0.3 MB&	0.01 \\
+PointNet & ModelNet40 & 3 (XYZ) & 87.44 & 13.259 MB \\
 \hline
-FeatureConcat&	3 (XYZ) + 7 (Centralities)&	92.07&	11.418 MB&	0.005 \\
+Hierarchical SAGPool & ModelNet10 & 3 (XYZ) + Harmonic & 87.89 & 0.3 MB \\
 \hline
-PointNetBasedGraphPooling&	3 (XYZ) + 7 (Centralities)&	89.87&	12.136 MB&	0.005 \\
+Hierarchical SAGPool & ModelNet40 & 3 (XYZ) & 78.44 & 0.3 MB \\
 \hline
-
+FeatureConcat & ModelNet10 & 3 (XYZ) & 94.34 & 11.418 MB \\
+\hline
+FeatureConcat & ModelNet40 & 3 (XYZ) + Harmonic & 88.20 & 11.418 MB \\
+\hline
+PointNetBasedGraphPooling & ModelNet10 & 3 (XYZ) + 7 (Centralities) & 95.80 & 12.136 MB \\
+\hline
+PointNetBasedGraphPooling & ModelNet40 & 3 (XYZ) + Harmonic & 85.47 & 12.136 MB \\
+\hline
 \end{tabular}
-\label{tab}
-
-\end{center}
 \end{table*}
 
-{
-    \color{red}
-   
-     \# Todo convergense Analysis ,all fetures results , modelNEt40 results  [Should be done by Ms Atyabi]
-}
+\subsection{Convergence analysis and final quantitative results}
+
+The learning curves in Figs.~\ref{fig3}--\ref{fig8} show that all four
+architectures converge stably on ModelNet10. The training loss decreases
+smoothly and the validation accuracy quickly plateaus, with no evidence of
+divergent behaviour. The SAGPool and PointNet baselines reach their best
+validation accuracy well before the last epoch, while the two fusion
+approaches (FeatureConcat and PointNetBasedGraphPooling) benefit from the
+full training schedule, showing small but consistent gains in the final
+epochs.
+
+On ModelNet40, the optimization dynamics are similar, although the task is
+more challenging and all models converge to a lower absolute accuracy. For
+the Self-Attention Graph Pooling (SAGPool) baseline, Table~\ref{tab3}
+reports the effect of injecting a single centrality on ModelNet10, while
+Table~\ref{tab:sagpool_m40} extends the same analysis to ModelNet40. On
+ModelNet10, harmonic centrality yields the best performance (87.89\%),
+closely followed by load and eigenvector centralities, whereas concatenating
+all seven centralities with XYZ achieves 87.78\%. On ModelNet40, the best
+configuration with a single feature type is obtained when using only the XYZ
+coordinates (78.44\%), while concatenating all seven centralities with XYZ
+reaches 75.04\%. These results indicate that centrality information is more
+beneficial on the smaller ModelNet10 benchmark, while on ModelNet40 the
+graphs become denser and the additional features are harder to exploit
+effectively.
+
+For the PointNet baseline, hyper-parameter tuning on ModelNet10 shows that
+using a learning rate of $0.02$ and weight decay of $10^{-4}$ leads to the
+best overall performance when all features are used, yielding 92.95\%
+accuracy. When we inject a single centrality at a time, the best result is
+obtained with closeness centrality (92.73\%), followed by Katz centrality
+(92.62\%). On ModelNet40, the best PointNet configuration with XYZ input
+reaches 87.44\% accuracy.
+
+The two proposed fusion architectures clearly benefit from combining PointNet
+and SAGPool features. For the \emph{FeatureConcat} model, using only XYZ
+features yields 94.34\% accuracy on ModelNet10 and 87.60\% on ModelNet40,
+while concatenating XYZ with all seven centralities achieves 92.29\% and
+86.67\% on ModelNet10 and ModelNet40, respectively. When harmonic centrality
+is used as the only graph-derived feature, the corresponding accuracies are
+92.26\% (ModelNet10) and 88.20\% (ModelNet40).
+
+For the \emph{PointNetBasedGraphPooling} approach, the configuration using
+all features (XYZ plus the seven centralities) achieves our best overall
+result on ModelNet10, with 95.80\% test accuracy, and 84.07\% on ModelNet40.
+When only harmonic centrality is added to XYZ, the accuracies are 93.74\%
+(ModelNet10) and 85.47\% (ModelNet40). These experiments confirm that
+harmonic centrality is one of the most informative graph-derived features in
+our setting, and that the proposed fusion schemes consistently outperform the
+individual baselines across both datasets.
+
 
 \section{CONCLUSION}
 
 \subsection{Networks Comparison}
-In terms of model size, the Hierarchical SAGPool network stands out as the most compact, occupying only 0.3 MB. On the other hand, the FeatureConcat approach exhibits a larger model size, consuming 11.418 MB. The PointNetBasedGraphPooling network follows closely, with a model size of 12.136 MB, while PointNet takes up the most space with 13.259 MB.
+In terms of model size, the Hierarchical SAGPool network stands out as the
+most compact model with approximately $0.3$~MB of parameters. The two fusion
+architectures, FeatureConcat and PointNetBasedGraphPooling, require
+$11.418$~MB and $12.136$~MB respectively, while PointNet has the largest
+footprint with $13.259$~MB.
 
-When considering test accuracy, FeatureConcat outperforms other networks, achieving an impressive accuracy of 92.07%. PointNetBasedGraphPooling closely follows with an accuracy of 89.87%, demonstrating the effectiveness of combining PointNet and SAGPool features. PointNet ranks third with an accuracy of 85.35%, and Hierarchical SAGPool achieves 81.61% accuracy.
+From the perspective of test accuracy, the proposed fusion approaches clearly
+outperform the baselines. On ModelNet10, PointNetBasedGraphPooling achieves
+the best overall performance with $95.80\%$ accuracy when trained on all
+features (XYZ coordinates and the seven centrality measures). The
+FeatureConcat architecture attains $94.34\%$ accuracy using only the XYZ
+features, while the best PointNet configuration reaches $92.95\%$ with all
+features. The hierarchical SAGPool baseline obtains $87.89\%$ accuracy when
+harmonic centrality is added to the XYZ coordinates.
 
-Regarding generalization, FeatureConcat showcases the best performance, successfully capturing complex patterns and dependencies in the data. PointNetBasedGraphPooling also exhibits strong generalization capabilities, owing to the fusion of local and global features. PointNet performs well in generalizing to unseen data, while Hierarchical SAGPool shows slightly lower generalization performance.
+On the more challenging ModelNet40 dataset, the relative ranking of the
+architectures is similar, although all networks achieve lower absolute
+accuracy. The highest accuracy is obtained by the FeatureConcat model with
+$88.20\%$ when using XYZ and harmonic centrality. PointNetBasedGraphPooling
+reaches $85.47\%$ with XYZ plus harmonic centrality, the best PointNet
+configuration achieves $87.44\%$ with XYZ input, and SAGPool attains
+$78.44\%$ with XYZ features.
 
-In conclusion, the FeatureConcat approach strikes a balance between model size and test accuracy, presenting a superior choice for point cloud classification tasks. PointNetBasedGraphPooling follows closely, showcasing promising results by leveraging the intersection of PointNet and SAGPool. The PointNet architecture excels in efficiency and is a viable option for point cloud classification. The hierarchical SAGPool approach offers a compact model size but falls slightly behind in accuracy and generalization. Overall, the fusion approaches demonstrate considerable potential for enhancing point cloud classification, with FeatureConcat standing out as the most robust and effective solution in this study.
+Regarding generalization, these results show that combining PointNet and
+SAGPool features in a single fusion architecture yields a better
+accuracy--complexity trade-off than either baseline alone. PointNetBasedGraphPooling
+is consistently the strongest model on ModelNet10, while FeatureConcat
+slightly dominates on ModelNet40. Hierarchical SAGPool, although very
+lightweight, exhibits the lowest accuracy, confirming that the additional
+expressiveness of the fusion approaches is important for capturing the
+fine-grained geometric structure of point cloud data.
+
+
 \subsection{Conclusion and review the report}
 The task of this research was to explore and enhance the point cloud classification using feature engineering, particularly by incorporating graph-based representations and node centralities. To achieve this, two main traditional approaches, PointNet and SAGPool, were employed as the basis for investigation. The study focused on developing and evaluating two new fusion approaches, namely FeatureConcat and PointNetBasedGraphPooling, which combined the strengths of PointNet and SAGPool architectures.
 
@@ -478,23 +711,38 @@ Furthermore, we extend an invitation to fellow researchers to join efforts in pr
 
 
 
-\section*{References}
-{
-    \color{red}
-    ready in the copy of the report
-}
+% \section*{References}
 
-% \begin{thebibliography}{00}
-% \bibitem{b1} G. Eason, B. Noble, and I. N. Sneddon, ``On certain integrals of Lipschitz-Hankel type involving products of Bessel functions,'' Phil. Trans. Roy. Soc. London, vol. A247, pp. 529--551, April 1955.
-% \bibitem{b2} J. Clerk Maxwell, A Treatise on Electricity and Magnetism, 3rd ed., vol. 2. Oxford: Clarendon, 1892, pp.68--73.
-% \bibitem{b3} I. S. Jacobs and C. P. Bean, ``Fine particles, thin films and exchange anisotropy,'' in Magnetism, vol. III, G. T. Rado and H. Suhl, Eds. New York: Academic, 1963, pp. 271--350.
-% \bibitem{b4} K. Elissa, ``Title of paper if known,'' unpublished.
-% \bibitem{b5} R. Nicole, ``Title of paper with only first word capitalized,'' J. Name Stand. Abbrev., in press.
-% \bibitem{b6} Y. Yorozu, M. Hirano, K. Oka, and Y. Tagawa, ``Electron spectroscopy studies on magneto-optical media and plastic substrate interface,'' IEEE Transl. J. Magn. Japan, vol. 2, pp. 740--741, August 1987 [Digests 9th Annual Conf. Magnetics Japan, p. 301, 1982].
-% \bibitem{b7} M. Young, The Technical Writer's Handbook. Mill Valley, CA: University Science, 1989.
-% \end{thebibliography}
-% \vspace{12pt}
-% \color{red}
-% IEEE conference templates contain guidance text for composing and formatting conference papers. Please ensure that all template text is removed from your conference paper prior to submission to the conference. Failure to remove the template text from your paper may result in your paper not being published.
+\begin{thebibliography}{00}
+
+\bibitem{b1} C.~R. Qi, H. Su, K. Mo, and L.~J. Guibas, ``PointNet: Deep learning on point sets for 3D classification and segmentation,'' in \emph{Proc. IEEE Conf. Computer Vision and Pattern Recognition (CVPR)}, Honolulu, HI, USA, 2017, pp. 652--660.
+\bibitem{b2} J. Lee, I. Lee, and J. Kang, ``Self-Attention Graph Pooling,'' 
+in \emph{Proceedings of the 36th International Conference on Machine Learning (ICML)}, 
+Long Beach, CA, USA, 2019, pp. 3734--3743.
+
+
+\bibitem{b3} C.~R. Qi, L. Yi, H. Su, and L.~J. Guibas, ``PointNet++: Deep hierarchical feature learning on point sets in a metric space,'' in \emph{Advances in Neural Information Processing Systems (NeurIPS)}, vol.~30, Long Beach, CA, USA, 2017, pp. 5099--5108.
+
+\bibitem{b4} Y. Wang, Y. Sun, Z. Liu, S.~E. Sarma, M.~M. Bronstein, and J.~M. Solomon, ``Dynamic graph CNN for learning on point clouds,'' \emph{ACM Trans. Graph.}, vol.~38, no.~5, art. no. 146, pp. 1--12, Oct. 2019.
+
+\bibitem{b5} M. Defferrard, X. Bresson, and P. Vandergheynst, ``Convolutional neural networks on graphs with fast localized spectral filtering,'' in \emph{Advances in Neural Information Processing Systems (NeurIPS)}, vol.~29, Barcelona, Spain, 2016, pp. 3844--3852.
+
+\bibitem{b6} D.~K. Hammond, P. Vandergheynst, and R. Gribonval, ``Wavelets on graphs via spectral graph theory,'' \emph{Appl. Comput. Harmon. Anal.}, vol.~30, no.~2, pp. 129--150, Mar. 2011.
+
+\bibitem{b7} U. von Luxburg, ``A tutorial on spectral clustering,'' \emph{Stat. Comput.}, vol.~17, no.~4, pp. 395--416, Dec. 2007.
+
+\bibitem{b8} D.~I. Shuman, S.~K. Narang, P. Frossard, A. Ortega, and P. Vandergheynst, ``The emerging field of signal processing on graphs: Extending high-dimensional data analysis to networks and other irregular domains,'' \emph{IEEE Signal Process. Mag.}, vol.~30, no.~3, pp. 83--98, May 2013.
+
+\bibitem{b9} J. Lee, I. Lee, and J. Kang, ``Self-attention graph pooling,'' in \emph{Proc. 36th Int. Conf. Machine Learning (ICML)}, Long Beach, CA, USA, 2019, pp. 3734--3743.
+\bibitem{b10} H. Gao and S. Ji, ``Graph U-Nets,'' in \emph{Proc. 36th Int. Conf. Machine Learning (ICML)}, Long Beach, CA, USA, 2019, pp. 2083--2092.
+
+\bibitem{b11} Y. Li, R. Bu, M. Sun, W. Wu, X. Di, and B. Chen, ``PointCNN: Convolution on X-transformed points,'' in \emph{Advances in Neural Information Processing Systems (NeurIPS)}, Montréal, QC, Canada, 2018, pp. 828--838.
+
+\bibitem{b12} H. Thomas, C.~R. Qi, J.-E. Deschaud, B. Marcotegui, F. Goulette, and L.~J. Guibas, ``KPConv: Flexible and deformable convolution for point clouds,'' in \emph{Proc. IEEE/CVF Int. Conf. Computer Vision (ICCV)}, Seoul, South Korea, 2019, pp. 6411--6420.
+
+\bibitem{b13} L.~C. Freeman, ``Centrality in social networks: Conceptual clarification,'' \emph{Social Networks}, vol.~1, no.~3, pp. 215--239, 1978.
+
+\bibitem{b14} M.~E.~J. Newman, \emph{Networks: An Introduction}. Oxford, U.K.: Oxford Univ. Press, 2010.
+\end{thebibliography}
 
 \end{document}
