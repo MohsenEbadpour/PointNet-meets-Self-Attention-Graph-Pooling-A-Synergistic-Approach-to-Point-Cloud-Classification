@@ -8,6 +8,17 @@
 \usepackage{textcomp}
 \usepackage{xcolor}
 \usepackage{dblfloatfix}
+\usepackage{url}
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=false,
+    linkcolor=black,
+    filecolor=black,      
+    urlcolor=black,
+    pdftitle={PointNet meets Self-Attention Graph Pooling: A Synergistic Approach to Point Cloud Classification},
+    pdfpagemode=FullScreen,
+    }
+
 \def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
     T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
 \begin{document}
@@ -25,7 +36,7 @@ M.Ebadpour@aut.ac.ir}
 
 \and
 \IEEEauthorblockN{2\textsuperscript{nd} M. Choupan}
-\IEEEauthorblockA{\textit{Master student} \\
+\IEEEauthorblockA{\textit{Master of Science student} \\
 \textit{University of Bologna}\\
 Bologna, Italy \\
 mohammad.choupan@studio.unibo.it}
@@ -126,7 +137,7 @@ cornerstone for subsequent work on 3D deep learning.
 PointNet++~\cite{b3} extended this idea by introducing a hierarchical
 feature-learning scheme that groups points into local neighborhoods at multiple
 scales, enabling the network to capture local geometric details while retaining
-the global representation power of PointNet. Other architectures, such as
+the global representation power of PointNet. Other architectures, such as PointCNN~\cite{b11}, KPConv~\cite{b12}, and
 EdgeConv-based Dynamic Graph CNNs for learning on point clouds~\cite{b4}, further
 refined local feature extraction by dynamically constructing graphs in the
 feature space and applying edge convolutions that are sensitive to local
@@ -141,7 +152,7 @@ Graphs provide a natural framework for modeling the relational structure of
 point clouds. Once a graph is constructed (for example, using $k$-nearest
 neighbors in Euclidean space), Graph Neural Networks can be applied to propagate
 information along edges. Early work on spectral graph convolutional
-networks~\cite{b4,b5} laid the foundation for learning filters in the
+networks and signal processing on graphs~\cite{b5,b6,b7,b8} laid the foundation for learning filters in the
 spectral domain of the graph Laplacian, while later spatial methods defined
 convolutions directly in the vertex domain.
 
@@ -150,7 +161,7 @@ both local neighborhoods and global topology, often leading to improved
 robustness to irregular sampling and noise. A key challenge is how to perform
 pooling on graphs, since standard downsampling operators used in CNNs do not
 directly transfer to irregular structures. Various graph pooling strategies
-have been proposed, including clustering-based coarsening, top-$k$ selection,
+have been proposed, including clustering-based coarsening, top-$k$ selection~\cite{b10},
 and attention-based mechanisms. Self-attention graph pooling approaches, such
 as the SAGPool architecture considered in this work, learn importance scores
 for nodes and retain only the most informative ones, yielding compact and
@@ -182,7 +193,7 @@ reduced memory footprint.
 
 Graph-based centrality measures such as betweenness, closeness, eigenvector,
 harmonic, Katz, load, and PageRank centralities have been widely studied in
-network analysis~\cite{b4,b5}. They quantify different notions of importance
+network analysis~\cite{b13,b14}. They quantify different notions of importance
 or influence of nodes within a graph, capturing how each node contributes to
 global connectivity, information flow, or structural cohesion. In many
 applications, centrality features have been used as powerful descriptors for
@@ -664,7 +675,7 @@ In conclusion, combining graph-based pooling and centrality metrics with PointNe
 
 
 \item 	Fine-tuning of Fusion Approach Components: The proposed fusion approaches, FeatureConcat and PointNetBasedGraphPooling, utilize MLP and 1D convolution layers, dropout, and batch normalization. Fine-tuning these components and hyperparameters can further enhance the network's performance and efficiency. Optimizing these details will lead to improved feature extraction and pooling, contributing to better classification results.
-The source code for the proposed fusion approaches, along with the experimental setup and dataset preparation, is available at the following link: \url{https://github.com/MohsenEbadpour/PointNet-meets-Self-Attention-Graph-Pooling-A-Synergistic-Approach-to-Point-Cloud-Classification}. Researchers are encouraged to contribute to the development and completion of this work. Collaborating on refining the fusion approaches, exploring additional datasets, and conducting in-depth experiments will enhance the credibility and significance of the findings.
+The source code for the proposed fusion approaches, along with the experimental setup and dataset preparation, is available at the \href{https://github.com/MohsenEbadpour/PointNet-meets-Self-Attention-Graph-Pooling-A-Synergistic-Approach-to-Point-Cloud-Classification}{this link}. Researchers are encouraged to contribute to the development and completion of this work. Collaborating on refining the fusion approaches, exploring additional datasets, and conducting in-depth experiments will enhance the credibility and significance of the findings.
 
 \end{itemize}
 
@@ -682,7 +693,6 @@ The source code for the proposed fusion approaches, along with the experimental 
 \bibitem{b2} J. Lee, I. Lee, and J. Kang, ``Self-Attention Graph Pooling,'' 
 in \emph{Proceedings of the 36th International Conference on Machine Learning (ICML)}, 
 Long Beach, CA, USA, 2019, pp. 3734--3743.
-
 
 \bibitem{b3} C.~R. Qi, L. Yi, H. Su, and L.~J. Guibas, ``PointNet++: Deep hierarchical feature learning on point sets in a metric space,'' in \emph{Advances in Neural Information Processing Systems (NeurIPS)}, vol.~30, Long Beach, CA, USA, 2017, pp. 5099--5108.
 
