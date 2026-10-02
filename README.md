@@ -1,60 +1,111 @@
-# PointNet meets Self-Attention Graph Pooling: A Synergistic Approach to Point Cloud Classification
-<!-- 
-  Picture of the model architecture should be attached here.
-  Create a link to paper.
-  If there was a jupiter implementation, Create a link here.
--->
-## Abstract
-This research project explores point cloud classification using a combination of PointNet and Self-Attention Graph Pooling architectures. Four variations of architectures were implemented and trained to enhance classification accuracy. The first architecture combines Self-Attention Graph Pooling with node centrality features and xyz coordinates. PointNet is employed as a standalone architecture, capturing local structures using xyz features. Fusion approaches were investigated, including feature concatenation and utilizing PointNet features for subsequent Self-Attention Graph Pooling. Extensive experiments were conducted on the ModelNet10 dataset, showcasing the efficiency of the combined architectures. The fusion approaches demonstrated improved classification accuracy compared to individual architectures, while also reducing model size. The integration of node centrality features further enhanced the discriminative power of the model. This research contributes to the advancement of point cloud classification, highlighting the potential of the combined PointNet and Self-Attention Graph Pooling approach in real-world applications such as object recognition and 3D perception in robotics.
+# PointNet Meets Self-Attention Graph Pooling
 
+This repository contains the code and experimental artifacts for **PointNet meets Self-Attention Graph Pooling: A Synergistic Approach to Point Cloud Classification**. The project studies whether PointNet's point-wise representations and Self-Attention Graph Pooling (SAGPool)'s graph-level representations can be combined to improve 3D point-cloud classification.
 
-## Review 
-The task of this research was to explore and enhance the point cloud classification using feature engineering, particularly by incorporating graph-based representations and node centralities. To achieve this, two main traditional approaches, PointNet and SAGPool, were employed as the basis for investigation. The study focused on developing and evaluating two new fusion approaches, namely FeatureConcat and PointNetBasedGraphPooling, which combined the strengths of PointNet and SAGPool architectures.
+Read the full report: [PDF](<report/Report -PointNet meets Self-Attention Graph Pooling - A Synergistic Approach to Point Cloud Classification/report.pdf>).
 
-Feature engineering played a crucial role in improving the representation of point cloud data. By building graphs and utilizing node centralities, the relationships and significance of each point in the point cloud were effectively captured. The inclusion of node centralities, such as betweenness, closeness, Katz, PageRank, eigenvector, harmonic, and load centralities, provided valuable connectivity information, aiding in more accurate and robust classification.
+## Overview
 
-The traditional approaches, PointNet and SAGPool, served as fundamental baselines for the new fusion approaches. PointNet, being a pioneering architecture in point cloud classification, showcased efficiency in handling unordered data. SAGPool, on the other hand, demonstrated the capability of adaptive feature pooling using graph structures, proving beneficial in capturing global context.
+Point clouds are converted to weighted, directed 6-nearest-neighbor graphs. Each sampled point contributes its XYZ coordinates and can be enriched with seven graph-centrality values:
 
-The newly proposed approaches, FeatureConcat and PointNetBasedGraphPooling, exhibited significant improvements in point cloud classification. FeatureConcat effectively combined high-level features from PointNet and SAGPool, leading to remarkable accuracy gains. PointNetBasedGraphPooling leveraged the intersection of PointNet and SAGPool features, further enhancing classification performance.
+- Betweenness
+- Closeness
+- Katz
+- PageRank
+- Eigenvector
+- Harmonic
+- Load
 
+The study evaluates two baselines and two proposed fusion models:
 
-## Results
-The results indicated that the fusion of SAGPool and PointNet significantly improved test accuracy compared to the individual approaches. FeatureConcat achieved an impressive test accuracy of 92.07%, while PointNetBasedGraphPooling closely followed with 89.87%. These findings demonstrated the value of integrating graph-based pooling and centralities with PointNet's feature extraction capabilities, resulting in more informative and robust representations for point cloud classification.
+| Model | Description |
+| --- | --- |
+| PointNet | Point-wise baseline that learns permutation-invariant global shape features. |
+| Hierarchical SAGPool | Graph baseline that uses attention-based graph pooling to retain informative nodes. |
+| FeatureConcat | Concatenates PointNet and SAGPool graph-level features before classification. |
+| PointNetBasedGraphPooling | Uses PointNet's per-point features as the input to SAGPool. |
 
-In conclusion, this research successfully explored and enhanced point cloud classification through feature engineering. The incorporation of graph-based representations and node centralities proved instrumental in achieving more accurate and efficient classification. The newly proposed fusion approaches, FeatureConcat and PointNetBasedGraphPooling, demonstrated remarkable performance gains, showcasing their potential in advancing point cloud classification tasks. This study contributes valuable insights and practical approaches for handling complex point cloud data and lays the foundation for further research in this field.
+## Key results
 
-<!-- ## Usage -->
+Experiments use 1,024 sampled points per object from ModelNet10 and ModelNet40. The best test accuracy for each model and dataset, as reported in the paper, is below.
 
-## To Do
-1)	Diverse Dataset Exploration: To further validate the robustness and generalization of the proposed fusion approaches, it is essential to explore and evaluate their performance on different datasets with varying complexities and sizes. Investigating datasets that encompass a wider range of 3D objects and scenes will provide deeper insights into the approaches' adaptability and effectiveness in real-world scenarios.
+| Model | Dataset | Best input features | Test accuracy | Model size |
+| --- | --- | --- | ---: | ---: |
+| PointNet | ModelNet10 | XYZ + 7 centralities | 92.95% | 13.259 MB |
+| PointNet | ModelNet40 | XYZ | 87.44% | 13.259 MB |
+| Hierarchical SAGPool | ModelNet10 | XYZ + harmonic | 87.89% | 0.3 MB |
+| Hierarchical SAGPool | ModelNet40 | XYZ | 78.44% | 0.3 MB |
+| FeatureConcat | ModelNet10 | XYZ | 94.34% | 11.418 MB |
+| FeatureConcat | ModelNet40 | XYZ + harmonic | 88.20% | 11.418 MB |
+| PointNetBasedGraphPooling | ModelNet10 | XYZ + 7 centralities | **95.80%** | 12.136 MB |
+| PointNetBasedGraphPooling | ModelNet40 | XYZ + harmonic | 85.47% | 12.136 MB |
 
-2)	Extended Training Analysis: In future research, the effect of extended training periods should be explored to understand how longer training durations impact the convergence and overall performance of the fusion approaches. Additionally, investigating the influence of different batch sizes and learning rates on training dynamics and model performance will help in optimizing the training process and achieving higher accuracy.
+PointNetBasedGraphPooling achieved the best ModelNet10 result, improving on the PointNet baseline by 2.85 percentage points while using about 1.1 MB less model storage. FeatureConcat achieved the best ModelNet40 result. The results also show that the usefulness of centralities is dataset- and architecture-dependent: harmonic centrality is especially effective for the SAGPool and fusion configurations, while the all-centralities PointNetBasedGraphPooling configuration is strongest on ModelNet10.
 
-3)	Fine-tuning of Fusion Approach Components: The proposed fusion approaches, FeatureConcat and PointNetBasedGraphPooling, utilize MLP and 1D convolution layers, dropout, and batch normalization. Fine-tuning these components and hyperparameters can further enhance the network's performance and efficiency. Optimizing these details will lead to improved feature extraction and pooling, contributing to better classification results.
+## Method
 
-4)	Ablation Study of Used Features: An ablation study, focusing on the impact of the individual features used in the fusion approaches, would shed light on their individual importance and contribution to the classification performance. Understanding the significance of each feature can help in designing more effective and efficient feature representations for point cloud classification tasks.
+1. Sample 1,024 surface points from each ModelNet mesh and normalize the point cloud.
+2. Build a directed, weighted k-nearest-neighbor graph with `k=6`.
+3. Compute the seven centrality measures and append them to XYZ when the selected experiment requires graph-derived features.
+4. Train either a baseline or a fusion architecture. The experimental setup uses Adam, graph-pooling ratio 0.25, and six-head graph-attention convolutions.
 
-5) Organizing GitHub repository
+The preprocessing implementation is in [`source codes/pre_process/CloudPointsPreprocessing.py`](<source codes/pre_process/CloudPointsPreprocessing.py>), and the model implementations are in [`source codes/base_models`](<source codes/base_models>).
 
+## Repository layout
+
+```text
+source codes/
+  base_models/       PointNet, SAGPool, and the two fusion architectures
+  pre_process/       Point-cloud sampling, graph construction, and centralities
+  visualization/     Training-result and point-cloud visualization utilities
+  Training_*.py      Experiment entry points
+outputs/             Saved training, validation, and test metrics
+checkpoints/         Saved point-cloud checkpoints
+results/             Plots and result figures
+report/              Project report and supporting source files
+```
+
+## Setup
+
+The original experiments used Python, PyTorch, PyTorch Geometric, NetworkX, NumPy, scikit-learn, and an NVIDIA RTX 3090 GPU. Install the pinned environment with:
+
+```bash
+python -m pip install -r requirements.txt
+```
+
+Place a ModelNet dataset in the location expected by the training script. The fusion scripts currently expect:
+
+```text
+datasets/pointcloud/raw/ModelNet40/<class>/{train,test}/*.off
+```
+
+The PointNet script is configured for `datasets/pointcloud/raw/modelnet-10/ModelNet10`. The `PointCloudData` loader creates and reuses precomputed point-cloud and graph-feature files beside the `.off` source files when `force_to_cal=True`.
+
+## Running experiments
+
+Run the scripts from `source codes` so their local imports and relative paths resolve:
+
+```bash
+cd "source codes"
+python Training_PointNet.py
+python Training_FeatureConcatModel.py
+python Training_PointNetBasedGraphPoolingModel.py
+```
+
+The entry points contain research-specific dataset paths, model dimensions, hyperparameters, and output paths. Update those settings before a new run. The fusion-model forward passes explicitly target CUDA, so an NVIDIA CUDA environment is required unless the device handling is adapted for CPU or another accelerator.
 
 ## Citation
-<!-- This should be completed after merging CITATION.cff in Mohadeseh Atyabi branch. -->
-If you find our work useful in your research, please consider citing using CITATION file.
 
+If you use this software, please cite the metadata in [CITATION.cff](CITATION.cff).
 
 ## License
-This project is licensed under the GPL-3.0 License.
 
+This project is licensed under the [GNU GPL v3.0](LICENSE).
 
-## Acknowledgement
-The original concept for this research was realized as the final project of the three-dimensional vision course presented by Dr. Javanmardi in the master's degree at Amirkabir University of Technology. Given the positive results of the initial implementation, a group of students came together to carry out the subsequent work and submit this research to a reputable academic conference or journal. Research activities have been carried out in Dr. Javanmardi's laboratory, and the initial version will be released soon. This directory presents the most recent applications and discoveries.
+## Authors
 
+- [Mohsen Ebadpour](https://github.com/MohsenEbadpour) - Amirkabir University of Technology
+- [Mohammad Choupan](https://github.com/mohamadch91) - University of Bologna
+- Mehdi Javanmardi - Amirkabir University of Technology
 
-## People
-- [Mohsen Ebadpour](https://github.com/MohsenEbadpour) (<m.ebadpour@aut.ac.ir> , <mohsenebadpour@outlook.com>)
-- [Mohadesdeh Atyabi](https://github.com/Mohadeseh-Atyabi) (<m.atyabi@aut.ac.ir>,<atyabi2000@gmail.com>)
-- [Mohammad Choupan](https://github.com/mohamadch91) (<mohamadchoupan80@gmail.com>)
-
-
-## Feedback
-If you have any feedback or suggestions for improving this research, please feel free to open an issue in the repository as well as send an email to us.
+For questions or suggestions, please open an issue in the repository.
