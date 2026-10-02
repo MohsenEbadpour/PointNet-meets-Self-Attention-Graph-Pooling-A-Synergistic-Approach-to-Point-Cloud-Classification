@@ -17,41 +17,30 @@
 }
 
 \author{
-\IEEEauthorblockN{1\textsuperscript{rd} M. Choupan}
-\IEEEauthorblockA{\textit{bachelor of science} \\
-\textit{Amirkabir university of technology}\\
-Tehran, Iran \\
-mohammad.choupan@studio.unibo.it}
-
-\and
-\IEEEauthorblockN{2\textsuperscript{nd} M. Javanmardi}
-\IEEEauthorblockA{\textit{Assistant Professor} \\
-\textit{Amirkabir university of technology}\\
-Tehran, Iran \\
-MJavan@aut.ac.ir}
-\and
-\IEEEauthorblockN{3\textsuperscript{st} M. Ebadpour}
+\IEEEauthorblockN{1\textsuperscript{st} M. Ebadpour}
 \IEEEauthorblockA{\textit{Master of Science student} \\
-\textit{Amirkabir university of technology}\\
+\textit{Amirkabir University of Technology}\\
 Tehran, Iran \\
 M.Ebadpour@aut.ac.ir}
 
+\and
+\IEEEauthorblockN{2\textsuperscript{nd} M. Choupan}
+\IEEEauthorblockA{\textit{Master student} \\
+\textit{University of Bologna}\\
+Bologna, Italy \\
+mohammad.choupan@studio.unibo.it}
+
+\and
+\IEEEauthorblockN{3\textsuperscript{rd} M. Javanmardi}
+\IEEEauthorblockA{\textit{Assistant Professor} \\
+\textit{Amirkabir University of Technology}\\
+Tehran, Iran \\
+MJavan@aut.ac.ir}
 }
 
 \maketitle
 
 \begin{abstract}
-% Point cloud is an important type of 3D data strucrue which has an important rule in researchs about our invoiroment
-% and has wise application in industry such as autonomous driving, image segmentation and ... .
-% On the other hand, graphs are usefull data structure to regulize point cloud data and we can add graph fetures to point cloud data 
-% for extract some features for each point in data. graph based neural networks can help us to extract fetures from point cloud data in the way 
-% each point specific features are conculed in classification result and this could improve detection accuracy.
-% in this paper we explore the effect of graph centrality fetures on each point using Point-Net and Self-Attention Graph Polling as baselines and Also implement two new architecture for point cloud classification.
-% The first architecture combines Poin-Net and Self-Attention Graph Pooling model using fusion approches. Second model is a Poin-Net based Self-Attention Graph Pooling which 
-% use first model result as the second model input. Extensive experiments were conducted on the ModelNet10 dataset, results are showing Closeness and harmonic centralities are improve the 
-% classification accuracy . as the total accuracy improve 3%
-%  compared to the individual architectures, while also reducing model size 1MB. 
-
 The point cloud is a crucial 3D data structure that plays a significant role in environmental research and has extensive 
 applications in industries such as autonomous driving and image segmentation.
  Additionally, graphs are useful data structures for regularizing point cloud data,
@@ -64,8 +53,8 @@ In this paper, we investigate the impact of graph centrality features on each po
  for point cloud classification. The first architecture integrates the Point-Net and Self-Attention Graph 
  Pooling models using fusion approaches. The second model is a Point-Net based Self-Attention Graph Pooling,
   which utilizes the results from the first model as input for the second. Extensive experiments conducted on
-   the ModelNet10 dataset demonstrate that the inclusion of Closeness and Harmonic centralities are the bset centralies for classification.
-   our new architectures improves classification accuracy by 4.7\% compared to the individual architectures, while also reducing the model size by 1MB.
+   the ModelNet10 dataset demonstrate that Closeness and Harmonic centralities are the best centralities for classification.
+   Our new architectures improve classification accuracy by up to 2.85\% compared to the PointNet baseline, while also reducing the model size by over 1.1MB.
 
 
 \end{abstract}
@@ -259,13 +248,13 @@ To further enrich the feature set, we introduce node centrality as an essential 
     in a network. It assigns relative scores to all nodes in the network based on the concept that connections to
      high-scoring nodes contribute more to the score of the node in question than equal connections to low-scoring nodes. 
      PageRank and the Katz centrality are variants of the eigenvector centrality. Using the adjacency matrix to find 
-     eigenvector centrality For a given graph $G := (V,E)$ with $|V|$ verticces let $A = (a_{v,t})$ be the adjacency matrix, i.e.
-     $a_{v,t} = 1$ if vertex $v$ is linked to vertex $t$, and $a_{v,t} = 0 $ other wise. The relative centrality score of vertex $v$ can be defined as:
-     $$ x_{v} = \frac{1}{\lambda}\sum_{t\epsilon M(v)}, x_{t} =\frac{1}{\lambda} \sum_{t\epsilon G} a_{v,t}x_t $$
+      eigenvector centrality For a given graph $G := (V,E)$ with $|V|$ vertices let $A = (a_{v,t})$ be the adjacency matrix, i.e.
+     $a_{v,t} = 1$ if vertex $v$ is linked to vertex $t$, and $a_{v,t} = 0 $ otherwise. The relative centrality score of vertex $v$ can be defined as:
+     $$ x_{v} = \frac{1}{\lambda}\sum_{t\in M(v)}, x_{t} =\frac{1}{\lambda} \sum_{t\in G} a_{v,t}x_t $$
     \item Harmonic: Harmonic centrality measures the 'average' distance of a node to the other nodes in the network. 
     This can be used to find nodes in a network that can quickly communicate with other nodes.
-    For calculation harmonic centrality for node i let $d_(i,x)$ is a distance from node i to node x for a given graph $G := (V,E)$ with $|V|$ verticces then :
-    $$ Harmonic(i) = \sum_{x\epsilon G , x \neq i } \frac{1}{d_(i,x)}$$
+    For calculation harmonic centrality for node i let $d_{i,x}$ is a distance from node i to node x for a given graph $G := (V,E)$ with $|V|$ vertices then :
+    $$ Harmonic(i) = \sum_{x\in G , x \neq i } \frac{1}{d_{i,x}}$$
     \item Load centrality: The load centrality of a node is the fraction of all shortest paths that pass through that node. It 
      measures the node's importance in graph connectivity and load distribution. For calculate load centrality  Consider a graph $G := (V,E)$ and an
      algorithm to identify the (potentially multiple) minimum weight
@@ -276,7 +265,7 @@ To further enrich the feature set, we introduce node centrality as an essential 
      commodity is divided equally among them. We call $\theta_{(s,d)}(v)$ the
      amount of commodity forwarded by vertex $v$. The load centrality
      of $v$ is then given by:
-     $$LC(v) = \sum_{s,d \epsilon V} \theta_{(s,d)}(v)$$
+     $$LC(v) = \sum_{s,d \in V} \theta_{(s,d)}(v)$$
 \end{itemize}
 \begin{figure*}[!h]
     \centering
@@ -284,11 +273,6 @@ To further enrich the feature set, we introduce node centrality as an essential 
     \caption{The architecture for Feature Concatenation Approach.}
     \label{fig2}
 \end{figure*}
-%    Betweenness measures the importance of a node in connecting other nodes, while closeness evaluates how central a 
-%   node is in terms of its average distance to all other nodes. Katz centrality combines both local and global node information,
-%    and PageRank identifies nodes of significant influence. Eigenvector centrality evaluates the influence of a node based on the influence
-%     of its neighbors. Harmonic and load centrality measure the node's importance in graph connectivity and load distribution, respectively.
-% as the result shown in next section x,y are the best fetures which added to point cloud x,y,z and we used them for continue the approach
 In our feature engineering process, we combine the seven centrality features with the existing XYZ features (x, y, and z coordinates)
  for each node. This results in a feature vector comprising 10 distinctive elements per point in the point cloud. Additionally,
   we applied a 1024 sampling rate to each point cloud to handle varying point densities efficiently. To ensure uniformity,
@@ -300,14 +284,10 @@ As shown in the subsequent section, the features closeness and harmonic are iden
 z dimensions. These features were subsequently utilized to advance our approach.
 
 
-It is important to note that the calculation of feature vectors for node centralities was implemented using multi-proccessing on the CPU.
- This approach allowed us to efficiently compute centrality metrics for each node in the point cloud concurrently, significantly reducing
-  the computation time. By leveraging the power of multi-proccessing, we were able to accelerate the feature engineering process and 
-  efficiently handle large datasets, ultimately improving the overall efficiency and performance of the fusion approaches.
-
-% we choose Point-Net and Self-Attention Graph polling models as a baslines for improving. because Point-Net is a generel bechmark model for point cloud classification 
-% and if we can achieve a better result in this base line it can be improved in other baseline . As the same for Self-Attention graph pooling is a popular benchmark
-% in graph classification and better result generalization on other baselinse
+The calculation of feature vectors for node centralities was implemented using multiprocessing on the CPU.
+ This approach allowed us to compute centrality metrics for each node in the point cloud concurrently, significantly reducing
+  the computation time. Using multiprocessing, we accelerated the feature engineering process and 
+  handled large datasets more efficiently.
 
 We selected Point-Net and Self-Attention Graph Pooling models as baselines for improvement. 
 Point-Net is a general benchmark model for point cloud classification, suggesting that any enhancements
@@ -344,13 +324,11 @@ The "PointNetBasedGraphPoolingModel" fusion approach integrates SAGPool and Poin
 \caption{The architecture for the graph classification based on PointNet features.}
 \label{fig1}
 \end{figure*}
-Subsequently, we enhance the feature vectors obtained from PointNet by applying 1D convolution, followed by batch normalization. This operation efficiently reduces the dimensionality to 32, effectively distilling essential information from PointNet's output. The resulting 32-feature vectors, carrying valuable local feature representations, are then fed into the SAGPool network.
+Subsequently, we reduce the dimensionality of the feature vectors obtained from PointNet to 32 by applying a 1D convolution, followed by batch normalization. The resulting 32-feature vectors, encoding local feature representations, are then fed into the SAGPool network.
 
-SAGPool, with its primary edge list structure and consistent graph schema, efficiently performs adaptive feature pooling and aggregation. The integration of the PointNet-derived feature vectors into the SAGPool network further enhances its ability to capture meaningful global context while preserving crucial local details.
+SAGPool efficiently performs adaptive feature pooling and aggregation. The integration of the PointNet-derived feature vectors helps the network aggregate global context while retaining local details.
 
-Experimental evaluations of the "PointNetBasedGraphPoolingModel" approach showcase its impressive performance in point cloud classification. By seamlessly blending the local feature extraction capabilities of PointNet with the adaptive feature aggregation of SAGPool, the approach achieves a more comprehensive representation of the point cloud data. The fusion of these two architectures leads to notable improvements in classification accuracy, enabling more robust, reducing the model size and accurate recognition of complex 3D scenes and objects.
-
-The effectiveness of this fusion approach contributes significantly to the advancement of 3D perception and scene understanding applications. With its ability to leverage both global and local features, the "PointNetBasedGraphPoolingModel" approach exemplifies a powerful paradigm in point cloud classification and opens new avenues for future research and practical applications in various domains.
+Experimental evaluations of the "PointNetBasedGraphPoolingModel" approach show strong performance in point cloud classification. By combining the local feature extraction capabilities of PointNet with the adaptive feature aggregation of SAGPool, the approach achieves a richer representation of the point cloud data. The fusion of these two architectures leads to notable improvements in classification accuracy, enabling more accurate recognition while reducing the model size.
 
 
 \section{EXPERIMENTS AND RESULTS}
@@ -381,8 +359,6 @@ hyperparameters ensured efficient and effective exploration of the fusion approa
     \caption{Training result for traditional PointNet Network On model Net 10.}
     \label{fig3}
     \end{figure*}
-% The dataset used for training and testing the networks in this study is ModelNets. ModelNets are a widely used benchmark datasets in the field of 3D object recognition and classification.
-%  It coculed ModelNet10 and ModelNet40 which have 10 and 40 classes. The categories in these datasets include common objects such as chairs, tables, airplanes, and cars, among others.
 
 The dataset utilized for training and testing the networks in this study is ModelNet, a widely used benchmark in the field of 3D object recognition and classification. ModelNet comprises ModelNet10 and ModelNet40, which feature 10 and 40 classes, respectively. These datasets include categories of common objects such as chairs, tables, airplanes, and cars, among others.
 \begin{figure*}[b]
@@ -713,6 +689,23 @@ Long Beach, CA, USA, 2019, pp. 3734--3743.
 \bibitem{b4} Y. Wang, Y. Sun, Z. Liu, S.~E. Sarma, M.~M. Bronstein, and J.~M. Solomon, ``Dynamic graph CNN for learning on point clouds,'' \emph{ACM Trans. Graph.}, vol.~38, no.~5, art. no. 146, pp. 1--12, Oct. 2019.
 
 \bibitem{b5} M. Defferrard, X. Bresson, and P. Vandergheynst, ``Convolutional neural networks on graphs with fast localized spectral filtering,'' in \emph{Advances in Neural Information Processing Systems (NeurIPS)}, vol.~29, Barcelona, Spain, 2016, pp. 3844--3852.
+
+\bibitem{b6} D.~K. Hammond, P. Vandergheynst, and R. Gribonval, ``Wavelets on graphs via spectral graph theory,'' \emph{Appl. Comput. Harmon. Anal.}, vol.~30, no.~2, pp. 129--150, Mar. 2011.
+
+\bibitem{b7} U. von Luxburg, ``A tutorial on spectral clustering,'' \emph{Stat. Comput.}, vol.~17, no.~4, pp. 395--416, Dec. 2007.
+
+\bibitem{b8} D.~I. Shuman, S.~K. Narang, P. Frossard, A. Ortega, and P. Vandergheynst, ``The emerging field of signal processing on graphs: Extending high-dimensional data analysis to networks and other irregular domains,'' \emph{IEEE Signal Process. Mag.}, vol.~30, no.~3, pp. 83--98, May 2013.
+
+\bibitem{b9} J. Lee, I. Lee, and J. Kang, ``Self-attention graph pooling,'' in \emph{Proc. 36th Int. Conf. Machine Learning (ICML)}, Long Beach, CA, USA, 2019, pp. 3734--3743.
+\bibitem{b10} H. Gao and S. Ji, ``Graph U-Nets,'' in \emph{Proc. 36th Int. Conf. Machine Learning (ICML)}, Long Beach, CA, USA, 2019, pp. 2083--2092.
+
+\bibitem{b11} Y. Li, R. Bu, M. Sun, W. Wu, X. Di, and B. Chen, ``PointCNN: Convolution on X-transformed points,'' in \emph{Advances in Neural Information Processing Systems (NeurIPS)}, Montréal, QC, Canada, 2018, pp. 828--838.
+
+\bibitem{b12} H. Thomas, C.~R. Qi, J.-E. Deschaud, B. Marcotegui, F. Goulette, and L.~J. Guibas, ``KPConv: Flexible and deformable convolution for point clouds,'' in \emph{Proc. IEEE/CVF Int. Conf. Computer Vision (ICCV)}, Seoul, South Korea, 2019, pp. 6411--6420.
+
+\bibitem{b13} L.~C. Freeman, ``Centrality in social networks: Conceptual clarification,'' \emph{Social Networks}, vol.~1, no.~3, pp. 215--239, 1978.
+
+\bibitem{b14} M.~E.~J. Newman, \emph{Networks: An Introduction}. Oxford, U.K.: Oxford Univ. Press, 2010.
 
 \end{thebibliography}
 
