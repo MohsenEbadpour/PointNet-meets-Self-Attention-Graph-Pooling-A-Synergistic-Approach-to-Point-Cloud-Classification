@@ -1,10 +1,10 @@
 # Fdb version 4
-["xdvipdfmx"] 1790947130.81901 "report_updated.xdv" "report_updated.pdf" "report_updated" 1790947131.73372 0
-  "report_updated.xdv" 1790947130.71273 497284 086ff6e6c9f5a5ab7fbf41967d69d3e4 "xelatex"
+["xdvipdfmx"] 1790947152.50892 "report_updated.xdv" "report_updated.pdf" "report_updated" 1790947153.36704 0
+  "report_updated.xdv" 1790947152.40684 497284 3e91f6985092374a7e9e3d2f096ccdca "xelatex"
   (generated)
   "report_updated.pdf"
   (rewritten before read)
-["xelatex"] 1790947130.22641 "/Users/mamads/Documents/thisses/git/report/Report -PointNet meets Self-Attention Graph Pooling - A Synergistic Approach to Point Cloud Classification/report_updated.tex" "report_updated.xdv" "report_updated" 1790947131.73283 0
+["xelatex"] 1790947151.90829 "/Users/mamads/Documents/thisses/git/report/Report -PointNet meets Self-Attention Graph Pooling - A Synergistic Approach to Point Cloud Classification/report_updated.tex" "report_updated.xdv" "report_updated" 1790947153.36619 0
   "/Library/Application Support/MiKTeX/texmfs/install/fonts/tfm/adobe/zapfding/pzdr.tfm" 1136768654 1528 f853c4d1b4e0550255e02831fdc8496f ""
   "/Library/Application Support/MiKTeX/texmfs/install/fonts/tfm/public/amsfonts/cmextra/cmex7.tfm" 1764534919.49142 1004 54797486969f23fa377b128694d548df ""
   "/Library/Application Support/MiKTeX/texmfs/install/fonts/tfm/public/amsfonts/cmextra/cmex8.tfm" 1764534919.49163 988 bdf658c3bfc2d96d3c8b02cfc1c94c20 ""
@@ -82,8 +82,8 @@
   "fig4.png" 1716426278 103271 d18cd60aa3b3f171f3a658bb9c075ea0 ""
   "fig7.png" 1716426278 126352 d42e751fcc5df0fe8ce58bdaf8b69367 ""
   "fig8.png" 1716426278 110595 cc0017a207e233be4cb63d545956a0c9 ""
-  "report_updated.aux" 1790947130.71158 7832 98ec0baf66644014ee15da9420682afc "xelatex"
-  "report_updated.out" 1790947130.71234 4786 5a33d30a674199aef23f0aa2a1562a30 "xelatex"
+  "report_updated.aux" 1790947152.40567 7832 98ec0baf66644014ee15da9420682afc "xelatex"
+  "report_updated.out" 1790947152.40649 4786 5a33d30a674199aef23f0aa2a1562a30 "xelatex"
   "report_updated.tex" 1790947083.28063 54101 19f2371815a0af4974cc28dba8eb2364 ""
   (generated)
   "report_updated.aux"
